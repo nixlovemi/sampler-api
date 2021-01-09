@@ -31,6 +31,10 @@ class ComposerStaticInit6902e269d383a79f0eea0f4bf1e37c77
         array (
             'phpDocumentor\\Reflection\\' => 25,
         ),
+        'b' => 
+        array (
+            'browner12\\helpers\\' => 18,
+        ),
         'X' => 
         array (
             'XdgBaseDir\\' => 11,
@@ -154,6 +158,10 @@ class ComposerStaticInit6902e269d383a79f0eea0f4bf1e37c77
             0 => __DIR__ . '/..' . '/phpdocumentor/reflection-common/src',
             1 => __DIR__ . '/..' . '/phpdocumentor/reflection-docblock/src',
             2 => __DIR__ . '/..' . '/phpdocumentor/type-resolver/src',
+        ),
+        'browner12\\helpers\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/browner12/helpers/src',
         ),
         'XdgBaseDir\\' => 
         array (
@@ -421,6 +429,7 @@ class ComposerStaticInit6902e269d383a79f0eea0f4bf1e37c77
     public static $classMap = array (
         'App\\Console\\Kernel' => __DIR__ . '/../..' . '/app/Console/Kernel.php',
         'App\\Exceptions\\Handler' => __DIR__ . '/../..' . '/app/Exceptions/Handler.php',
+        'App\\Http\\Controllers\\AuthController' => __DIR__ . '/../..' . '/app/Http/Controllers/AuthController.php',
         'App\\Http\\Controllers\\Auth\\ForgotPasswordController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/ForgotPasswordController.php',
         'App\\Http\\Controllers\\Auth\\LoginController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/LoginController.php',
         'App\\Http\\Controllers\\Auth\\RegisterController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/RegisterController.php',
@@ -4250,6 +4259,8 @@ class ComposerStaticInit6902e269d383a79f0eea0f4bf1e37c77
         'Whoops\\Util\\SystemFacade' => __DIR__ . '/..' . '/filp/whoops/src/Whoops/Util/SystemFacade.php',
         'Whoops\\Util\\TemplateHelper' => __DIR__ . '/..' . '/filp/whoops/src/Whoops/Util/TemplateHelper.php',
         'XdgBaseDir\\Xdg' => __DIR__ . '/..' . '/dnoegel/php-xdg-base-dir/src/Xdg.php',
+        'browner12\\helpers\\Commands\\HelperMakeCommand' => __DIR__ . '/..' . '/browner12/helpers/src/Commands/HelperMakeCommand.php',
+        'browner12\\helpers\\HelperServiceProvider' => __DIR__ . '/..' . '/browner12/helpers/src/HelperServiceProvider.php',
         'phpDocumentor\\Reflection\\DocBlock' => __DIR__ . '/..' . '/phpdocumentor/reflection-docblock/src/DocBlock.php',
         'phpDocumentor\\Reflection\\DocBlockFactory' => __DIR__ . '/..' . '/phpdocumentor/reflection-docblock/src/DocBlockFactory.php',
         'phpDocumentor\\Reflection\\DocBlockFactoryInterface' => __DIR__ . '/..' . '/phpdocumentor/reflection-docblock/src/DocBlockFactoryInterface.php',

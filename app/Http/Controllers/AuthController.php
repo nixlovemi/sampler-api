@@ -11,6 +11,113 @@ class AuthController extends Controller
         $this->middleware('auth')->except(['register', 'login', 'unauthenticated']);
     }
 
+    /**
+     * Get the authenticated User.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function me() {
+        $retUser = auth()->user();
+
+        $response = lpApiResponse(
+            false,
+            'Logged user data returned successfully!',
+            [
+                "user" => $retUser->getAttributes()
+            ]
+        );
+
+        return response()->json($response);
+    }
+
+    /**
+     * Login the user and return the JWT token
+     *
+     * @param Request $request [email, password]
+     * @return json []
+     */
+    public function login(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|string',
+            'password' => 'required|string',
+        ]);
+        if ($validator->fails()) {
+            $response = lpApiResponse(
+                true,
+                'Error logging in!',
+                [
+                    $validator->messages()
+                ]
+            );
+
+            return response()->json($response, 401);
+        }
+        
+        $credentials = $request->only(['email', 'password']);
+        if (!$token = auth()->attempt($credentials)) {
+            $response = lpApiResponse(
+                true,
+                'Invalid Credentials.'
+            );
+
+            return response()->json($response, 401);
+        }
+        
+        return $this->respondWithToken($token);
+    }
+
+    /**
+     * Log the user out (Invalidate the token).
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function logout() {
+        auth()->logout();
+
+        $response = lpApiResponse(
+            false,
+            'Successfully logged out!'
+        );
+
+        return response()->json($response);
+    }
+
+    /**
+     * Returns the message when user is unauthenticated
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function unauthenticated() {
+        // @TODO try to change the response for {"message": "Unauthenticated."}
+        $response = lpApiResponse(
+            true,
+            'Please authenticate before using this route'
+        );
+
+        return response()->json($response, 401);
+    }
+
+    /**
+     * Return the array with token information
+     *
+     * @param [type] $token
+     * @return \Illuminate\Http\JsonResponse
+     */
+    private function respondWithToken($token) {
+        $response = lpApiResponse(
+            false,
+            'Successfully logged in!',
+            [
+                'access_token' => $token,
+                'token_type' => 'bearer',
+                'expires_in' => auth()->factory()->getTTL() * 60
+            ]
+        );
+
+        return response()->json($response);
+    }
+
+    /*
     public function register(Request $request) {
         $request->validate([
             'name' => 'required|string',
@@ -26,63 +133,5 @@ class AuthController extends Controller
         $token = auth()->login($user);
         return $this->respondWithToken($token);
     }
-
-    public function login(Request $request) {
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|string',
-            'password' => 'required|string',
-        ]);
-        if ($validator->fails()) {
-            return response()->json(
-                [
-                    'error' => $validator->messages()
-                ],
-            401);
-        }
-        
-        $credentials = $request->only(['email', 'password']);
-        if (!$token = auth()->attempt($credentials)) {
-            return response()->json(['error' => 'Invalid Credentials'], 401);
-        }
-        
-        return $this->respondWithToken($token);
-    }
-
-    protected function respondWithToken($token) {
-        return response()->json([
-            'access_token' => $token,
-            'token_type' => 'bearer',
-            'expires_in' => auth()->factory()->getTTL() * 60
-        ]);
-    }
-
-    /**
-     * Get the authenticated User.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function me()
-    {
-        return response()->json(auth()->user());
-    }
-
-    /**
-     * Log the user out (Invalidate the token).
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function logout()
-    {
-        auth()->logout();
-        return response()->json(['message' => 'Successfully logged out']);
-    }
-
-    /**
-     * Returns the message when user is unauthenticated
-     *
-     * @return void
-     */
-    public function unauthenticated() {
-        return response()->json(['error' => 'Please authenticate before using this route'], 401);
-    }
+    */
 }
