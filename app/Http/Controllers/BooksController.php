@@ -14,7 +14,6 @@ use App\Helpers\lpExceptionMsgHandler;
 // @TODO Sampler: improve error handling when adding
 class BooksController extends Controller
 {
-    private $_perPage = 50;
 
     public function __construct() {
         $this->middleware('auth')->except(['getAll', 'show']);
@@ -41,11 +40,7 @@ class BooksController extends Controller
             );
             return response()->json($response, lpHttpResponses::SUCCESS);
         } catch (Exception $e) {
-            $response = lpApiResponse(
-                true,
-                "Error while retrieving books! Message: " . lpExceptionMsgHandler::getMessage($e)
-            );
-            return response()->json($response, lpHttpResponses::SERVER_ERROR);
+            $this->exceptionHandler($e, 'Error while retrieving books!');
         }
     }
 
@@ -69,11 +64,7 @@ class BooksController extends Controller
             );
             return response()->json($response, lpHttpResponses::SUCCESS);
         } catch (Exception $e) {
-            $response = lpApiResponse(
-                true,
-                "Error while retrieving book #{$bookId}! Message: " . lpExceptionMsgHandler::getMessage($e)
-            );
-            return response()->json($response, lpHttpResponses::SERVER_ERROR);
+            $this->exceptionHandler($e, "Error while retrieving book #{$bookId}!");
         }
     }
 
@@ -125,11 +116,7 @@ class BooksController extends Controller
             );
             return response()->json($response, lpHttpResponses::SUCCESS);
         } catch (Exception $e) {
-            $response = lpApiResponse(
-                true,
-                "Error adding the book! Message: " . lpExceptionMsgHandler::getMessage($e)
-            );
-            return response()->json($response, lpHttpResponses::SERVER_ERROR);
+            $this->exceptionHandler($e, 'Error adding the book!');
         }
     }
 
@@ -198,23 +185,36 @@ class BooksController extends Controller
             );
             return response()->json($response, lpHttpResponses::SUCCESS);
         } catch (Exception $e) {
-            $response = lpApiResponse(
-                true,
-                "Error updating the book! Message: " . lpExceptionMsgHandler::getMessage($e)
-            );
-            return response()->json($response, lpHttpResponses::SERVER_ERROR);
+            $this->exceptionHandler($e, 'Error updating the book!');
         }
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Books  $books
+     * @param  integer  $bookId
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Books $books)
-    {
-        //
+    public function destroy(int $bookId) {
+        try {
+            $book = Books::where('id', $bookId);
+            if(!$book->exists()){
+                $response   = lpApiResponse(
+                    false,
+                    "Book #{$bookId} not found!"
+                );
+                return response()->json($response, lpHttpResponses::SUCCESS);
+            }
+
+            $isDeleted = ($book->delete() == 1);
+            $response  = lpApiResponse(
+                !$isDeleted,
+                ($isDeleted) ? "Book successfully deleted!": "Error deleting the book #{$bookId}!"
+            );
+            return response()->json($response, lpHttpResponses::SUCCESS);
+        } catch (Exception $e) {
+            $this->exceptionHandler($e, "Error deleting the book #{$bookId}!");
+        }
     }
 
     /**
@@ -232,4 +232,20 @@ class BooksController extends Controller
             return lpValidateIsbn($isbn);
         }
     }
+
+    /**
+     * A better way to centralize the exception handler
+     *
+     * @param Exception $e
+     * @param string $message
+     * @return \Illuminate\Http\Response
+     */
+    private function exceptionHandler(Exception $e, string $message) {
+        $response = lpApiResponse(
+            true,
+            "{$message} Message: " . lpExceptionMsgHandler::getMessage($e)
+        );
+        return response()->json($response, lpHttpResponses::SERVER_ERROR);
+    }
+
 }
