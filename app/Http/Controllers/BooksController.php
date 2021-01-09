@@ -218,6 +218,44 @@ class BooksController extends Controller
     }
 
     /**
+     * Activate/Deactivate the specified resource.
+     *
+     * @param  integer  $bookId
+     * @param  integer  $activate [0 deactivate | 1 activate]
+     * @return \Illuminate\Http\Response
+     */
+    public function activate(int $bookId, int $activate) {
+        $bActive = (bool) $activate;
+        $sActive = ($bActive) ? 'activated': 'deactivated';
+
+        try {
+            $book = Books::where('id', $bookId);
+            if(!$book->exists()){
+                $response   = lpApiResponse(
+                    false,
+                    "Book #{$bookId} not found!"
+                );
+                return response()->json($response, lpHttpResponses::SUCCESS);
+            }
+            
+            Books::where('id', $bookId)
+                    ->where('active', '<>', $bActive)
+                    ->update(['active' => $bActive]);
+            
+            $response = lpApiResponse(
+                false,
+                "Book {$sActive} successfully!",
+                [
+                    "book" => Books::where('id', $bookId)->get()
+                ]
+            );
+            return response()->json($response, lpHttpResponses::SUCCESS);
+        } catch (Exception $e) {
+            $this->exceptionHandler($e, "Error {$sActive} the book #{$bookId}!");
+        }
+    }
+
+    /**
      * Function to check if isbn number is valid. Can bypass the check when updating the record.
      *
      * @param string $isbn

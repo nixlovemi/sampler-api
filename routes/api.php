@@ -29,4 +29,5 @@ Route::prefix('books')->group(function () {
     Route::post('/', 'BooksController@store');
     Route::put('/{id}', 'BooksController@update')->where('id', '[0-9]+');
     Route::delete('/{id}', 'BooksController@destroy')->where('id', '[0-9]+');
+    Route::patch('/{id}/{activate}', 'BooksController@activate')->where('id', '[0-9]+')->where('activate', '[0-1]+');
 });

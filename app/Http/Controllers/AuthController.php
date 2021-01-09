@@ -8,7 +8,7 @@ use Validator;
 class AuthController extends Controller
 {
     public function __construct() {
-        $this->middleware('auth')->except(['register', 'login', 'unauthenticated']);
+        $this->middleware('auth')->except(['login', 'unauthenticated']);
     }
 
     /**
@@ -117,22 +117,4 @@ class AuthController extends Controller
 
         return response()->json($response);
     }
-
-    /*
-    public function register(Request $request) {
-        $request->validate([
-            'name' => 'required|string',
-            'email' => 'required|string|unique:users',
-            'password' => 'required|string|min:8',
-        ]);
-
-        $user = Users::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => bcrypt($request->password),
-        ]);
-        $token = auth()->login($user);
-        return $this->respondWithToken($token);
-    }
-    */
 }
