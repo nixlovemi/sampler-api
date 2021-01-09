@@ -1,0 +1,21 @@
+[MIGRATION]
+php artisan migrate:fresh --seed (drop all and rerun)
+
+[MODEL]
+php artisan make:model Books -a (The -a flag will create corresponding migration, controller, factory and seeder file for the model.)
+
+[SEED]
+Database seeding in summary is just populating tables with data we want to develop.
+
+[FAKER]
+https://r00t4bl3.com/post/generating-dummy-data-in-laravel-application-using-faker
+https://faker.readthedocs.io/en/master/providers/faker.providers.date_time.html
+
+$faker->regexify('[A-Za-z0-9]{20}')
+word                                             // 'aut'
+words($nb = 3, $asText = false)                  // array('porro', 'sed', 'magni')
+sentence($nbWords = 6, $variableNbWords = true)  // 'Sit vitae voluptas sint non voluptates.'
+sentences($nb = 3, $asText = false)              // array('Optio quos qui illo error.', 'Laborum vero a officia id corporis.', 'Saepe provident esse hic eligendi.')
+paragraph($nbSentences = 3, $variableNbSentences = true) // 'Ut ab voluptas sed a nam. Sint autem inventore aut officia aut aut blanditiis. Ducimus eos odit amet et est ut eum.'
+paragraphs($nb = 3, $asText = false)             // array('Quidem ut sunt et quidem est accusamus aut. Fuga est placeat rerum ut. Enim ex eveniet facere sunt.', 'Aut nam et eum architecto fugit repellendus illo. Qui ex esse veritatis.', 'Possimus omnis aut incidunt sunt. Asperiores incidunt iure sequi cum culpa rem. Rerum exercitationem est rem.')
+text($maxNbChars = 200)                          // 'Fuga totam reiciendis qui architecto fugiat nemo. Consequatur recusandae qui cupiditate eos quod.'
