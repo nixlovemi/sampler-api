@@ -1,16 +1,17 @@
 <?php
 namespace App\Http\Controllers;
 
-//use PhpParser\Node\Stmt\TryCatch;
+// use PhpParser\Node\Stmt\TryCatch;
+// use Illuminate\Validation\Rule;
 use App\Models\Books;
 use Illuminate\Http\Request;
 use \Exception;
 use Validator;
-use Illuminate\Validation\Rule;
 use App\Helpers\lpHttpResponses;
+use App\Helpers\lpExceptionMsgHandler;
 
-// @TODO maybe improve this try/catch block???
-// @TODO improve error handling when adding
+// @TODO Sampler: maybe improve this try/catch block???
+// @TODO Sampler: improve error handling when adding
 class BooksController extends Controller
 {
     private $_perPage = 50;
@@ -24,13 +25,11 @@ class BooksController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function getAll(/*$page=1*/) {
+    public function getAll() {
         try {
-            /*$offset = $page - 1; // zero based query*/
+            // TODO Sampler: implement pagination
             $books  = Books::where('active', true)
-                            ->orderBy('id')
-                            /*->offset($offset)*/
-                            ->limit($this->_perPage);
+                            ->orderBy('id');
 
             if($books->exists()){
                 $response = lpApiResponse(
@@ -38,7 +37,6 @@ class BooksController extends Controller
                     'Books data returned successfully!',
                     [
                         "books" => $books->get(),
-                        /*"page"  => $page*/
                     ]
                 );
             } else {
@@ -54,7 +52,7 @@ class BooksController extends Controller
         } catch (Exception $e) {
             $response = lpApiResponse(
                 true,
-                "Error while retrieving books! Message: {$e->getMessage()}"
+                "Error while retrieving books! Message: " . lpExceptionMsgHandler::getMessage($e)
             );
             return response()->json($response, lpHttpResponses::SERVER_ERROR);
         }
@@ -91,7 +89,7 @@ class BooksController extends Controller
         } catch (Exception $e) {
             $response = lpApiResponse(
                 true,
-                "Error while retrieving book #{$bookId}! Message: {$e->getMessage()}"
+                "Error while retrieving book #{$bookId}! Message: " . lpExceptionMsgHandler::getMessage($e)
             );
             return response()->json($response, lpHttpResponses::SERVER_ERROR);
         }
@@ -107,10 +105,21 @@ class BooksController extends Controller
         try{
             $validator = Validator::make($request->all(), [
                 'title'        => 'required|string|max:255',
-                'isbn'         => 'required|size:10', // ISBN validator
+                'isbn'         => ['required', 'size:10'],
                 'published_at' => 'required|date|date_format:Y-m-d|before:today',
-                // 'status'       => ['required', 'string', Rule::in(['CHECKED_OUT', 'AVAILABLE'])]
             ]);
+
+            // @TODO Sampler: maybe do this along with Validator::make???
+            $validator->after(function ($validator) {
+                $retIsbn = lpValidateIsbn(
+                    $validator->validated()['isbn'] ?? ''
+                );
+
+                if ($retIsbn !== true) {
+                    $validator->errors()->add('isbn', 'Invalid ISBN number!');
+                }
+            });
+            // =================================================
             
             if ($validator->fails()) {
                 $response = lpApiResponse(
@@ -139,7 +148,7 @@ class BooksController extends Controller
         } catch (Exception $e) {
             $response = lpApiResponse(
                 true,
-                "Error adding the book! Message: {$e->getMessage()}"
+                "Error adding the book! Message: " . lpExceptionMsgHandler::getMessage($e)
             );
             return response()->json($response, lpHttpResponses::SERVER_ERROR);
         }

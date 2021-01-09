@@ -24,7 +24,7 @@ Route::post('login', 'AuthController@login');
 Route::post('logout', 'AuthController@logout');
 
 Route::prefix('books')->group(function () {
-    Route::get('/', 'BooksController@getAll')/*->where('page', '[0-9]+')*/; //@TODO implement pagination
+    Route::get('/', 'BooksController@getAll')/*->where('page', '[0-9]+')*/; //@TODO Sampler: implement pagination
     Route::get('/{id}', 'BooksController@show')->where('id', '[0-9]+');
     Route::post('/', 'BooksController@store');
 });

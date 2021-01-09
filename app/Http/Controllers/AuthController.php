@@ -89,7 +89,7 @@ class AuthController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function unauthenticated() {
-        // @TODO try to change the response for {"message": "Unauthenticated."}
+        // @TODO Sampler: try to change the response for {"message": "Unauthenticated."}
         $response = lpApiResponse(
             true,
             'Please authenticate before using this route'

@@ -1,9 +1,9 @@
 <?php
 namespace App\Helpers;
 
-// @TODO search if laravel has something like this
+// @TODO Sampler: search if laravel has something like this
 /**
- * Undocumented class
+ * Static list of http response codes
  */
 final class lpHttpResponses {
     public const SUCCESS = 200;

@@ -1,3 +1,6 @@
+[ISBN]
+https://www.topshelfcomix.com/catalog/isbn-list
+
 [MIGRATION]
 php artisan migrate:fresh --seed (drop all and rerun)
 
