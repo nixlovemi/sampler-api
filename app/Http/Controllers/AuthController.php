@@ -1,7 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
-use App\Models\Users;
+// use App\Models\Users;
 use Illuminate\Http\Request;
 use Validator;
 
@@ -52,18 +52,19 @@ class AuthController extends Controller
 
             return response()->json($response, 401);
         }
-        
-        $credentials = $request->only(['email', 'password']);
-        if (!$token = auth()->attempt($credentials)) {
-            $response = lpApiResponse(
-                true,
-                'Invalid Credentials.'
-            );
+        else {
+            $credentials = $request->only(['email', 'password']);
+            if (!$token = auth()->attempt($credentials)) {
+                $response = lpApiResponse(
+                    true,
+                    'Invalid Credentials.'
+                );
 
-            return response()->json($response, 401);
+                return response()->json($response, 401);
+            }
+            
+            return $this->respondWithToken($token);
         }
-        
-        return $this->respondWithToken($token);
     }
 
     /**

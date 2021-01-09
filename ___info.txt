@@ -1,6 +1,9 @@
 [MIGRATION]
 php artisan migrate:fresh --seed (drop all and rerun)
 
+[FILLABLE]
+https://hndr.me/blog/laravel-mass-assignment-protection-blacklist-vs-whitelist/
+
 [JWT]
 php artisan jwt:secret (jwt-auth secret [UkagSeqz8P8ykEb0QPQcHSvA1ce7zB5hvGcpiCPQZUNmD4XOLq3OVdl34hgxXMhh] set successfully)
 

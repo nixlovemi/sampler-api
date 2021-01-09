@@ -20,6 +20,8 @@ class CreateBooksTable extends Migration
             - isbn (10 digits, select from an array of valid isbn provided below) [OK]
             - published_at (Date in format YYYY-MM-DD) [OK]
             - status (enum [‘CHECKED_OUT’,’AVAILABLE’]) [OK]
+
+            - active (bool / default true)
             */
 
             $table->bigIncrements('id');
