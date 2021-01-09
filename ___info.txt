@@ -1,3 +1,7 @@
+[RESTFULL]
+https://restfulapi.net/rest-put-vs-post/
+> Content-Type: application/x-www-form-urlencoded
+
 [ISBN]
 https://www.topshelfcomix.com/catalog/isbn-list
 
