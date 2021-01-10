@@ -18,7 +18,7 @@ class CreateUserActionLogsTable extends Migration
             - id (auto incremented id) [OK]
             - book_id (integer) [OK]
             - user_id (integer) [OK]
-            - action (enum [‘CHECKIN’, ‘CHECKOUT’]) [OK]
+            - action (enum ['CHECKIN', 'CHECKOUT']) [OK]
             - created_at (timestamp) [OK]
             */
 

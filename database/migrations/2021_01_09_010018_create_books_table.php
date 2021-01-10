@@ -17,7 +17,7 @@ class CreateBooksTable extends Migration
             /*
             - id (auto incremented id) [OK]
             - title (string with max length of 255 characters) [OK]
-            - isbn (10 digits, select from an array of valid isbn provided below) [OK]
+            - isbn (10 digits, select from an array of valid isbn provided below - UK) [OK]
             - published_at (Date in format YYYY-MM-DD) [OK]
             - status (enum [‘CHECKED_OUT’,’AVAILABLE’]) [OK]
 
