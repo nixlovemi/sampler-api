@@ -15,7 +15,7 @@ $factory->define(Users::class, function (Faker $faker) {
     return [
         "email"         => $faker->unique()->userName . '@gmail.com',
         "name"          => $faker->name,
-        "password"      => bcrypt('verdaumsdrobs'),
+        "password"      => bcrypt('Sampler123'),
         "date_of_birth" => $faker->dateTime,
     ];
 });
