@@ -96,7 +96,6 @@ class AuthController extends Controller
      */
     public function unauthenticated()
     {
-        // @TODO Sampler: try to change the response for {"message": "Unauthenticated."}
         $response = lpApiResponse(
             true,
             'Please authenticate before using this route'
