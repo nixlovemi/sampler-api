@@ -1,9 +1,8 @@
 <?php
 namespace App\Http\Controllers;
-
-// use App\Models\Users;
 use Illuminate\Http\Request;
 use Validator;
+use App\Helpers\lpHttpResponses;
 
 class AuthController extends Controller
 {
@@ -29,7 +28,7 @@ class AuthController extends Controller
             ]
         );
 
-        return response()->json($response);
+        return response()->json($response, lpHttpResponses::SUCCESS);
     }
 
     /**
@@ -54,7 +53,7 @@ class AuthController extends Controller
                 ]
             );
 
-            return response()->json($response, 401);
+            return response()->json($response, lpHttpResponses::SUCCESS);
         }
         else
         {
@@ -66,7 +65,7 @@ class AuthController extends Controller
                     'Invalid Credentials.'
                 );
 
-                return response()->json($response, 401);
+                return response()->json($response, lpHttpResponses::UNAUTHORIZED);
             }
             
             return $this->respondWithToken($token);
@@ -87,7 +86,7 @@ class AuthController extends Controller
             'Successfully logged out!'
         );
 
-        return response()->json($response);
+        return response()->json($response, lpHttpResponses::SUCCESS);
     }
 
     /**
@@ -103,7 +102,7 @@ class AuthController extends Controller
             'Please authenticate before using this route'
         );
 
-        return response()->json($response, 401);
+        return response()->json($response, lpHttpResponses::UNAUTHORIZED);
     }
 
     /**
@@ -124,6 +123,6 @@ class AuthController extends Controller
             ]
         );
 
-        return response()->json($response);
+        return response()->json($response, lpHttpResponses::SUCCESS);
     }
 }

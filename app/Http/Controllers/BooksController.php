@@ -35,7 +35,8 @@ class BooksController extends Controller
         }
         catch (Exception $e)
         {
-            return lpExceptionMsgHandler::controllerExceptionHandler($e, 'Error while retrieving books!');
+            $return = lpExceptionMsgHandler::controllerExceptionHandler($e, 'Error while retrieving books!');
+            return response()->json($return, lpHttpResponses::SERVER_ERROR);
         }
     }
 
@@ -60,7 +61,8 @@ class BooksController extends Controller
         }
         catch (Exception $e)
         {
-            return lpExceptionMsgHandler::controllerExceptionHandler($e, "Error while retrieving book #{$bookId}!");
+            $return = lpExceptionMsgHandler::controllerExceptionHandler($e, "Error while retrieving book #{$bookId}!");
+            return response()->json($return, lpHttpResponses::SERVER_ERROR);
         }
     }
 
@@ -82,7 +84,8 @@ class BooksController extends Controller
         }
         catch (Exception $e)
         {
-            return lpExceptionMsgHandler::controllerExceptionHandler($e, 'Error adding the book!');
+            $return = lpExceptionMsgHandler::controllerExceptionHandler($e, 'Error adding the book!');
+            return response()->json($return, lpHttpResponses::SERVER_ERROR);
         }
     }
 
@@ -105,7 +108,8 @@ class BooksController extends Controller
         }
         catch (Exception $e)
         {
-            return lpExceptionMsgHandler::controllerExceptionHandler($e, 'Error editing the book!');
+            $return = lpExceptionMsgHandler::controllerExceptionHandler($e, 'Error editing the book!');
+            return response()->json($return, lpHttpResponses::SERVER_ERROR);
         }
     }
 
@@ -125,7 +129,8 @@ class BooksController extends Controller
         }
         catch (Exception $e)
         {
-            return lpExceptionMsgHandler::controllerExceptionHandler($e, "Error deleting the book #{$bookId}!");
+            $return = lpExceptionMsgHandler::controllerExceptionHandler($e, "Error deleting the book #{$bookId}!");
+            return response()->json($return, lpHttpResponses::SERVER_ERROR);
         }
     }
 
@@ -157,7 +162,29 @@ class BooksController extends Controller
         }
         catch (Exception $e)
         {
-            return lpExceptionMsgHandler::controllerExceptionHandler($e, "Error {$sActive} the book #{$bookId}!");
+            $return = lpExceptionMsgHandler::controllerExceptionHandler($e, "Error {$sActive} the book #{$bookId}!");
+            return response()->json($return, lpHttpResponses::SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Check-out a book
+     *
+     * @param integer $bookId
+     * @return \Illuminate\Http\Response
+     */
+    public function checkOut(int $bookId)
+    {
+        try
+        {
+            $Books       = new Books();
+            $retCheckOut = $Books->checkoutBook($bookId);
+            return response()->json($retCheckOut, lpHttpResponses::SUCCESS);
+        }
+        catch (Exception $e)
+        {
+            $return = lpExceptionMsgHandler::controllerExceptionHandler($e, "Check-out process error for book #{$bookId}!");
+            return response()->json($return, lpHttpResponses::SERVER_ERROR);
         }
     }
 
@@ -177,21 +204,8 @@ class BooksController extends Controller
         }
         catch (Exception $e)
         {
-            return lpExceptionMsgHandler::controllerExceptionHandler($e, "Check-in process error for book #{$bookId}!");
-        }
-    }
-
-    public function checkOut(int $bookId)
-    {
-        try
-        {
-            $Books       = new Books();
-            $retCheckOut = $Books->checkoutBook($bookId);
-            return response()->json($retCheckOut, lpHttpResponses::SUCCESS);
-        }
-        catch (Exception $e)
-        {
-            return lpExceptionMsgHandler::controllerExceptionHandler($e, "Check-out process error for book #{$bookId}!");
+            $return = lpExceptionMsgHandler::controllerExceptionHandler($e, "Check-in process error for book #{$bookId}!");
+            return response()->json($return, lpHttpResponses::SERVER_ERROR);
         }
     }
 }

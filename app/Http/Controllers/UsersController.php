@@ -33,7 +33,8 @@ class UsersController extends Controller
         }
         catch (Exception $e)
         {
-            return lpExceptionMsgHandler::controllerExceptionHandler($e, 'Error adding the user!');
+            $return = lpExceptionMsgHandler::controllerExceptionHandler($e, 'Error adding the user!');
+            return response()->json($return, lpHttpResponses::SERVER_ERROR);
         }
     }
 }

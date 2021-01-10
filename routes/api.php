@@ -1,5 +1,5 @@
 <?php
-use Illuminate\Http\Request;
+use App\Helpers\lpHttpResponses;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,12 +18,20 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 */
 
+// @TODO Sampler: is this the best way?
+Route::fallback(function ()
+{
+    $response = lpApiResponse(true, 'Route not found.');
+    return response()->json($response, lpHttpResponses::NOT_FOUND);
+});
+
 Route::get('me', 'AuthController@me');
 Route::get('unauthenticated', 'AuthController@unauthenticated')->name('unauthenticated');
 Route::post('login', 'AuthController@login');
 Route::post('logout', 'AuthController@logout');
 
-Route::prefix('books')->group(function () {
+Route::prefix('books')->group(function ()
+{
     Route::get('/', 'BooksController@getAll')/*->where('page', '[0-9]+')*/; //@TODO Sampler: implement pagination
     Route::get('/{id}', 'BooksController@show')->where('id', '[0-9]+');
     Route::post('/', 'BooksController@store');
@@ -37,6 +45,7 @@ Route::prefix('books')->group(function () {
     Route::post('/checkout/{id}', 'BooksController@checkOut')->where('id', '[0-9]+');
 });
 
-Route::prefix('users')->group(function () {
+Route::prefix('users')->group(function ()
+{
     Route::post('/', 'UsersController@store');
 });
