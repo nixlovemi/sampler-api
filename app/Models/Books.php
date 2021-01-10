@@ -1,7 +1,9 @@
 <?php
 namespace App\Models;
+use App\Models\UserActionLogs;
 use Validator;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Facades\DB;
 
 class Books extends Authenticatable
 {
@@ -12,6 +14,8 @@ class Books extends Authenticatable
         'isbn'         => ['required', 'string', 'size:10', 'filled'],
         'published_at' => ['required', 'date', 'date_format:Y-m-d', 'before:today', 'filled'],
     ];
+    public const BOOK_STATUS_AVAILABLE   = 'AVAILABLE';
+    public const BOOK_STATUS_UNAVAILABLE = 'CHECKED_OUT';
 
     public function logs()
     {
@@ -78,9 +82,9 @@ class Books extends Authenticatable
 
         // fill model
         $Book               = new Books;
-        $Book->title        = $BookData['title'] ?? '';
-        $Book->isbn         = $BookData['isbn'] ?? '';
-        $Book->published_at = $BookData['published_at'] ?? '';
+        $Book->title        = $BookData['title'] ?? NULL;
+        $Book->isbn         = $BookData['isbn'] ?? NULL;
+        $Book->published_at = $BookData['published_at'] ?? NULL;
 
         // validate the isbn number
         if ($this->isValidIsbn($Book->isbn) !== true)
@@ -201,6 +205,68 @@ class Books extends Authenticatable
         $strDelete = ($isDeleted) ? 'Book successfully deleted!': "Error deleting the book #{$bookId}!";
 
         return lpApiResponse(!$isDeleted, $strDelete);
+    }
+
+    public function checkinBook (int $bookId)
+    {
+        // get the book by id
+        $retBook = Books::where('id', $bookId);
+        if (!$retBook->exists())
+        {
+            return lpApiResponse(true, "Book #{$bookId} not found!");
+        }
+
+        // retrive book from DB
+        $Book = $retBook->first();
+
+        // check if active
+        if (!$Book->active)
+        {
+            return lpApiResponse(true, "Book #{$bookId} is not active!");
+        }
+
+        // check availability
+        if ($Book->status == Books::BOOK_STATUS_UNAVAILABLE)
+        {
+            return lpApiResponse(true, "The Book #{$bookId} is unavailable!");
+        }
+
+        // all good, check-in
+        DB::beginTransaction();
+
+        // set book status
+        $bookData = [
+            'status' => Books::BOOK_STATUS_UNAVAILABLE
+        ];
+        $retUpdate = $this->updateBook($bookId, $bookData);
+        if ($retUpdate['error'])
+        {
+            DB::rollBack();
+            $retUpdate['message'] = "Check-in process error for book #{$bookId}! " . $retUpdate['message'];
+            return $retUpdate;
+        }
+
+        // add the log
+        $UALogs = new UserActionLogs();
+        $retLog = $UALogs->addLog([
+            'book_id'    => $bookId,
+            'user_id'    => Users::getLoggedUserId(),
+            'action'     => UserActionLogs::USER_ACT_LOG_ACTION_CHECKIN,
+            'created_at' => date('Y-m-d H:i:s'),
+        ]);
+        if ($retLog['error'])
+        {
+            DB::rollBack();
+            $retLog['message'] = "Check-in process error for book #{$bookId}! " . $retLog['message'];
+            return $retLog;
+        }
+
+        // commit
+        // If an exception is thrown within the transaction closure, the transaction will automatically be rolled back.
+        // the controller has a try/catch to handle failure
+        DB::commit();
+
+        return lpApiResponse(false, 'Check in book successfully!');
     }
 
     /**

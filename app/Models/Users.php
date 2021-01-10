@@ -1,8 +1,6 @@
 <?php
 namespace App\Models;
 use Validator;
-use \Exception;
-use App\Helpers\lpExceptionMsgHandler;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
@@ -19,6 +17,16 @@ class Users extends Authenticatable implements JWTSubject
     public const NEW_USER_CST_MSG = [
         'password.regex' => 'The password must have 1 capital letter and 1 number.'
     ];
+
+    /**
+     * Returns the logged user id
+     *
+     * @return integer|null
+     */
+    public static function getLoggedUserId()
+    {
+        return auth()->user()->getAttributes()['id'] ?? null;
+    }
 
     public function logs()
     {
@@ -64,10 +72,10 @@ class Users extends Authenticatable implements JWTSubject
 
         // fill model
         $User                = new Users;
-        $User->email         = $UserData['email'] ?? '';
-        $User->name          = $UserData['name'] ?? '';
-        $User->password      = $UserData['password'] ?? '';
-        $User->date_of_birth = $UserData['date_of_birth'] ?? '';
+        $User->email         = $UserData['email'] ?? NULL;
+        $User->name          = $UserData['name'] ?? NULL;
+        $User->password      = $UserData['password'] ?? NULL;
+        $User->date_of_birth = $UserData['date_of_birth'] ?? NULL;
 
         // bcrypt the password
         $User->password = bcrypt($User->password);

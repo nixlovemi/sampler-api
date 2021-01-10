@@ -13,11 +13,9 @@ $factory->define(Users::class, function (Faker $faker) {
     - date_of_birth (Date in format YYYY-MM-DD) [OK]
     */
     return [
-        "email"         => $faker->unique()->safeEmail,
+        "email"         => $faker->unique()->userName . '@gmail.com',
         "name"          => $faker->name,
-        // "password"      => bcrypt($faker->password()),
         "password"      => bcrypt('verdaumsdrobs'),
-        // "date_of_birth" => $faker->date_between('-100 years', '-5 years'),
         "date_of_birth" => $faker->dateTime,
     ];
 });

@@ -166,4 +166,18 @@ class BooksController extends Controller
         }
     }
 
+    public function checkIn(int $bookId)
+    {
+        try
+        {
+            $Books      = new Books();
+            $retCheckIn = $Books->checkinBook($bookId);
+            return response()->json($retCheckIn, lpHttpResponses::SUCCESS);
+        }
+        catch (Exception $e)
+        {
+            return lpExceptionMsgHandler::controllerExceptionHandler($e, "Check-in process error for book #{$bookId}!");
+        }
+    }
+
 }

@@ -32,6 +32,8 @@ Route::prefix('books')->group(function () {
     Route::patch('/{id}/{activate}', 'BooksController@activate')
             ->where('id', '[0-9]+')
             ->where('activate', '[0-1]+');
+    
+    Route::post('/checkin/{id}', 'BooksController@checkIn')->where('id', '[0-9]+');
 });
 
 Route::prefix('users')->group(function () {
