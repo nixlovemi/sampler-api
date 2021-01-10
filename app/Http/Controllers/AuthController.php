@@ -1,8 +1,8 @@
 <?php
 namespace App\Http\Controllers;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Validator;
-use App\Helpers\lpHttpResponses;
 
 class AuthController extends Controller
 {
@@ -28,7 +28,7 @@ class AuthController extends Controller
             ]
         );
 
-        return response()->json($response, lpHttpResponses::SUCCESS);
+        return response()->json($response, Response::HTTP_OK);
     }
 
     /**
@@ -53,7 +53,7 @@ class AuthController extends Controller
                 ]
             );
 
-            return response()->json($response, lpHttpResponses::SUCCESS);
+            return response()->json($response, Response::HTTP_OK);
         }
         else
         {
@@ -65,7 +65,7 @@ class AuthController extends Controller
                     'Invalid Credentials.'
                 );
 
-                return response()->json($response, lpHttpResponses::UNAUTHORIZED);
+                return response()->json($response, Response::HTTP_UNAUTHORIZED);
             }
             
             return $this->respondWithToken($token);
@@ -86,7 +86,7 @@ class AuthController extends Controller
             'Successfully logged out!'
         );
 
-        return response()->json($response, lpHttpResponses::SUCCESS);
+        return response()->json($response, Response::HTTP_OK);
     }
 
     /**
@@ -102,7 +102,7 @@ class AuthController extends Controller
             'Please authenticate before using this route'
         );
 
-        return response()->json($response, lpHttpResponses::UNAUTHORIZED);
+        return response()->json($response, Response::HTTP_UNAUTHORIZED);
     }
 
     /**
@@ -123,6 +123,6 @@ class AuthController extends Controller
             ]
         );
 
-        return response()->json($response, lpHttpResponses::SUCCESS);
+        return response()->json($response, Response::HTTP_OK);
     }
 }

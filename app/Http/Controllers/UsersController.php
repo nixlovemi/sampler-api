@@ -3,9 +3,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Users;
 use Illuminate\Http\Request;
-use Validator;
 use \Exception;
-use App\Helpers\lpHttpResponses;
+use Symfony\Component\HttpFoundation\Response;
 use App\Helpers\lpExceptionMsgHandler;
 
 class UsersController extends Controller
@@ -29,12 +28,12 @@ class UsersController extends Controller
             $Users      = new Users();
             $retSave    = $Users->addUser($userFields);
 
-            return response()->json($retSave, lpHttpResponses::SUCCESS);
+            return response()->json($retSave, Response::HTTP_OK);
         }
         catch (Exception $e)
         {
             $return = lpExceptionMsgHandler::controllerExceptionHandler($e, 'Error adding the user!');
-            return response()->json($return, lpHttpResponses::SERVER_ERROR);
+            return response()->json($return, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }

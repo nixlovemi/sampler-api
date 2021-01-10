@@ -1,5 +1,5 @@
 <?php
-use App\Helpers\lpHttpResponses;
+use Symfony\Component\HttpFoundation\Response;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,7 +22,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::fallback(function ()
 {
     $response = lpApiResponse(true, 'Route not found.');
-    return response()->json($response, lpHttpResponses::NOT_FOUND);
+    return response()->json($response, Response::HTTP_NOT_FOUND);
 });
 
 Route::get('me', 'AuthController@me');

@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 use App\Models\Books;
 use Illuminate\Http\Request;
 use \Exception;
-use App\Helpers\lpHttpResponses;
 use App\Helpers\lpExceptionMsgHandler;
+use Symfony\Component\HttpFoundation\Response;
 
 class BooksController extends Controller
 {
@@ -31,12 +31,12 @@ class BooksController extends Controller
                 ]
             );
 
-            return response()->json($response, lpHttpResponses::SUCCESS);
+            return response()->json($response, Response::HTTP_OK);
         }
         catch (Exception $e)
         {
             $return = lpExceptionMsgHandler::controllerExceptionHandler($e, 'Error while retrieving books!');
-            return response()->json($return, lpHttpResponses::SERVER_ERROR);
+            return response()->json($return, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -57,12 +57,12 @@ class BooksController extends Controller
                 ]
             );
 
-            return response()->json($response, lpHttpResponses::SUCCESS);
+            return response()->json($response, Response::HTTP_OK);
         }
         catch (Exception $e)
         {
             $return = lpExceptionMsgHandler::controllerExceptionHandler($e, "Error while retrieving book #{$bookId}!");
-            return response()->json($return, lpHttpResponses::SERVER_ERROR);
+            return response()->json($return, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -80,12 +80,12 @@ class BooksController extends Controller
             $Books      = new Books();
             $retSave    = $Books->addBook($bookFields);
 
-            return response()->json($retSave, lpHttpResponses::SUCCESS);
+            return response()->json($retSave, Response::HTTP_OK);
         }
         catch (Exception $e)
         {
             $return = lpExceptionMsgHandler::controllerExceptionHandler($e, 'Error adding the book!');
-            return response()->json($return, lpHttpResponses::SERVER_ERROR);
+            return response()->json($return, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -104,12 +104,12 @@ class BooksController extends Controller
             $Books      = new Books();
             $retSave    = $Books->updateBook($bookId, $bookFields);
 
-            return response()->json($retSave, lpHttpResponses::SUCCESS);
+            return response()->json($retSave, Response::HTTP_OK);
         }
         catch (Exception $e)
         {
             $return = lpExceptionMsgHandler::controllerExceptionHandler($e, 'Error editing the book!');
-            return response()->json($return, lpHttpResponses::SERVER_ERROR);
+            return response()->json($return, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -125,12 +125,12 @@ class BooksController extends Controller
         {
             $Books     = new Books();
             $retDelete = $Books->deleteBook($bookId);
-            return response()->json($retDelete, lpHttpResponses::SUCCESS);
+            return response()->json($retDelete, Response::HTTP_OK);
         }
         catch (Exception $e)
         {
             $return = lpExceptionMsgHandler::controllerExceptionHandler($e, "Error deleting the book #{$bookId}!");
-            return response()->json($return, lpHttpResponses::SERVER_ERROR);
+            return response()->json($return, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -158,12 +158,12 @@ class BooksController extends Controller
                 $retSave['message'] .= " Action: {$sActive}";
             }
 
-            return response()->json($retSave, lpHttpResponses::SUCCESS);
+            return response()->json($retSave, Response::HTTP_OK);
         }
         catch (Exception $e)
         {
             $return = lpExceptionMsgHandler::controllerExceptionHandler($e, "Error {$sActive} the book #{$bookId}!");
-            return response()->json($return, lpHttpResponses::SERVER_ERROR);
+            return response()->json($return, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -179,12 +179,12 @@ class BooksController extends Controller
         {
             $Books       = new Books();
             $retCheckOut = $Books->checkoutBook($bookId);
-            return response()->json($retCheckOut, lpHttpResponses::SUCCESS);
+            return response()->json($retCheckOut, Response::HTTP_OK);
         }
         catch (Exception $e)
         {
             $return = lpExceptionMsgHandler::controllerExceptionHandler($e, "Check-out process error for book #{$bookId}!");
-            return response()->json($return, lpHttpResponses::SERVER_ERROR);
+            return response()->json($return, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -200,12 +200,12 @@ class BooksController extends Controller
         {
             $Books      = new Books();
             $retCheckIn = $Books->checkinBook($bookId);
-            return response()->json($retCheckIn, lpHttpResponses::SUCCESS);
+            return response()->json($retCheckIn, Response::HTTP_OK);
         }
         catch (Exception $e)
         {
             $return = lpExceptionMsgHandler::controllerExceptionHandler($e, "Check-in process error for book #{$bookId}!");
-            return response()->json($return, lpHttpResponses::SERVER_ERROR);
+            return response()->json($return, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }
