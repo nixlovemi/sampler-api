@@ -93,7 +93,7 @@ public/hot
 storage/*.key
 .env.*.php
 .env.php
-#.env (JUST FOR THIS SAMPLER'S API)
+.env
 Homestead.yaml
 Homestead.json
 
