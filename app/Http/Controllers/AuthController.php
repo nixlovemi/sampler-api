@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use App\Models\Users;
 use Validator;
 
 class AuthController extends Controller
@@ -40,19 +41,12 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'email' => 'required|string',
-            'password' => 'required|string',
+            'email'    => Users::NEW_USER_RULES['email'] ?? ['required', 'string', 'min:2'],
+            'password' => ['required', 'string', 'min:8'],
         ]);
         if ($validator->fails())
         {
-            $response = lpApiResponse(
-                true,
-                'Error logging in!',
-                [
-                    $validator->messages()
-                ]
-            );
-
+            $response = lpApiResponse(true, 'Error logging in!', [$validator->messages()]);
             return response()->json($response, Response::HTTP_OK);
         }
         else
@@ -60,11 +54,7 @@ class AuthController extends Controller
             $credentials = $request->only(['email', 'password']);
             if (!$token = auth()->attempt($credentials))
             {
-                $response = lpApiResponse(
-                    true,
-                    'Invalid Credentials.'
-                );
-
+                $response = lpApiResponse(true, 'Invalid Credentials.');
                 return response()->json($response, Response::HTTP_UNAUTHORIZED);
             }
             

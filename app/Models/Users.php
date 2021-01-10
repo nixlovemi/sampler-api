@@ -10,13 +10,19 @@ class Users extends Authenticatable implements JWTSubject
     public $timestamps = false; // prevent created/updated_at
     public const NEW_USER_RULES = [
         'email'         => ['required', 'email:rfc,dns', 'max:255', 'filled'],
-        'name'          => ['required', 'string', 'min:2', 'max:255', 'filled'],
+        'name'          => ['required', 'string', 'min:2', 'max:255', 'filled', "regex:/^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$/"], // regex for names (can a name have numbers on it?)
         'password'      => ['required', 'string', 'min:8', 'max:255', 'regex:/^(?=.*\d)(?=.*[A-Z])(?!.*[^a-zA-Z0-9@#$^+=])(.{8,255})$/'],
         'date_of_birth' => ['required', 'date', 'date_format:Y-m-d', 'before:today'],
     ];
     public const NEW_USER_CST_MSG = [
+        'name.regex'     => 'Enter a valid name.',
         'password.regex' => 'The password must have 1 capital letter and 1 number.'
     ];
+
+    public function logs()
+    {
+        return $this->hasMany('App\Models\UserActionLogs');
+    }
 
     /**
      * Returns the logged user id
@@ -26,11 +32,6 @@ class Users extends Authenticatable implements JWTSubject
     public static function getLoggedUserId()
     {
         return auth()->user()->getAttributes()['id'] ?? null;
-    }
-
-    public function logs()
-    {
-        return $this->hasMany('App\Models\UserActionLogs');
     }
 
      /**

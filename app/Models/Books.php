@@ -208,74 +208,6 @@ class Books extends Authenticatable
     }
 
     /**
-     * Check-in a book (return it to the 'library')
-     *
-     * @param integer $bookId
-     * @return array lpApiResponse
-     */
-    public function checkinBook (int $bookId)
-    {
-        // get the book by id
-        $retBook = Books::where('id', $bookId);
-        if (!$retBook->exists())
-        {
-            return lpApiResponse(true, "Book #{$bookId} not found!");
-        }
-
-        // retrive book from DB
-        $Book = $retBook->first();
-
-        // check if active
-        if (!$Book->active)
-        {
-            return lpApiResponse(true, "Book #{$bookId} is not active!");
-        }
-
-        // check availability
-        if ($Book->status == Books::BOOK_STATUS_AVAILABLE)
-        {
-            return lpApiResponse(true, "Can not check-out an available Book #{$bookId}!");
-        }
-
-        // all good, check-in
-        DB::beginTransaction();
-
-        // set book status
-        $bookData = [
-            'status' => Books::BOOK_STATUS_AVAILABLE
-        ];
-        $retUpdate = $this->updateBook($bookId, $bookData);
-        if ($retUpdate['error'])
-        {
-            DB::rollBack();
-            $retUpdate['message'] = "Check-in process error for book #{$bookId}! " . ($retUpdate['message'] ?? '');
-            return $retUpdate;
-        }
-
-        // add the log
-        $UALogs = new UserActionLogs();
-        $retLog = $UALogs->addLog([
-            'book_id'    => $bookId,
-            'user_id'    => Users::getLoggedUserId(),
-            'action'     => UserActionLogs::USER_ACT_LOG_ACTION_CHECKIN,
-            'created_at' => date('Y-m-d H:i:s'),
-        ]);
-        if ($retLog['error'])
-        {
-            DB::rollBack();
-            $retLog['message'] = "Check-in process error for book #{$bookId}! " . ($retLog['message'] ?? '');
-            return $retLog;
-        }
-
-        // commit
-        // If an exception is thrown within the transaction closure, the transaction will automatically be rolled back.
-        // the controller has a try/catch to handle failure
-        DB::commit();
-
-        return lpApiResponse(false, 'Check-in book successfully!');
-    }
-
-    /**
      * Check-out a book (get a book from the 'library')
      *
      * @param integer $bookId
@@ -292,6 +224,12 @@ class Books extends Authenticatable
 
         // retrive book from DB
         $Book = $retBook->first();
+
+        // check if active
+        if (!$Book->active)
+        {
+            return lpApiResponse(true, "Book #{$bookId} is not active!");
+        }
 
         // check availability
         if ($Book->status == Books::BOOK_STATUS_UNAVAILABLE)
@@ -335,6 +273,68 @@ class Books extends Authenticatable
         DB::commit();
 
         return lpApiResponse(false, 'Check-out book successfully!');
+    }
+
+    /**
+     * Check-in a book (return it to the 'library')
+     *
+     * @param integer $bookId
+     * @return array lpApiResponse
+     */
+    public function checkinBook (int $bookId)
+    {
+        // get the book by id
+        $retBook = Books::where('id', $bookId);
+        if (!$retBook->exists())
+        {
+            return lpApiResponse(true, "Book #{$bookId} not found!");
+        }
+
+        // retrive book from DB
+        $Book = $retBook->first();
+
+        // check availability
+        if ($Book->status == Books::BOOK_STATUS_AVAILABLE)
+        {
+            return lpApiResponse(true, "Can not check-out an available Book #{$bookId}!");
+        }
+
+        // all good, check-in
+        DB::beginTransaction();
+
+        // set book status
+        $bookData = [
+            'status' => Books::BOOK_STATUS_AVAILABLE
+        ];
+        $retUpdate = $this->updateBook($bookId, $bookData);
+        if ($retUpdate['error'])
+        {
+            DB::rollBack();
+            $retUpdate['message'] = "Check-in process error for book #{$bookId}! " . ($retUpdate['message'] ?? '');
+            return $retUpdate;
+        }
+
+        // add the log
+        $UALogs = new UserActionLogs();
+        $retLog = $UALogs->addLog([
+            'book_id'    => $bookId,
+            'user_id'    => Users::getLoggedUserId(),
+            'action'     => UserActionLogs::USER_ACT_LOG_ACTION_CHECKIN,
+            'created_at' => date('Y-m-d H:i:s'),
+        ]);
+        if ($retLog['error'])
+        {
+            DB::rollBack();
+            $retLog['message'] = "Check-in process error for book #{$bookId}! " . ($retLog['message'] ?? '');
+            return $retLog;
+        }
+
+        // commit
+        // If an exception is thrown within the transaction closure, the transaction will automatically be rolled back.
+        // the controller has a try/catch to handle failure
+        DB::commit();
+
+        return lpApiResponse(false, 'Check-in book successfully!');
     }
 
     /**

@@ -1,9 +1,9 @@
 <?php
-
 namespace App\Exceptions;
-
 use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Symfony\Component\HttpFoundation\Response;
+use App\Helpers\lpExceptionMsgHandler;
 
 class Handler extends ExceptionHandler
 {
@@ -46,6 +46,11 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
+        if (strpos(get_class($exception), 'MethodNotAllowedHttpException') !== false) 
+        {
+            $return = lpExceptionMsgHandler::controllerExceptionHandler($exception, "This method is not available for this route!");
+            return response()->json($return, Response::HTTP_METHOD_NOT_ALLOWED);
+        }
         return parent::render($request, $exception);
     }
 }
