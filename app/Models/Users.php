@@ -53,46 +53,38 @@ class Users extends Authenticatable implements JWTSubject
      */
     public function addUser(array $UserData)
     {
-        try
+        // check rules for adding a new user
+        $validator = Validator::make($UserData, Users::NEW_USER_RULES, Users::NEW_USER_CST_MSG);
+        if ($validator->fails())
         {
-            // check rules for adding a new user
-            $validator = Validator::make($UserData, Users::NEW_USER_RULES, Users::NEW_USER_CST_MSG);
-            if ($validator->fails())
-            {
-                return lpApiResponse(true, 'Error adding the User!', [
-                    "validations" => $validator->messages()
-                ]);
-            }
-
-            // fill model
-            $User                = new Users;
-            $User->email         = $UserData['email'] ?? '';
-            $User->name          = $UserData['name'] ?? '';
-            $User->password      = $UserData['password'] ?? '';
-            $User->date_of_birth = $UserData['date_of_birth'] ?? '';
-
-            // bcrypt the password
-            $User->password = bcrypt($User->password);
-
-            // check if email already exists | UK
-            $retChkEmail = Users::where('email', $User->email);
-            if ($retChkEmail->exists())
-            {
-                return lpApiResponse(true, 'Email already exists!');
-            }
-            
-            // all good, save
-            $User->save();
-
-            // get new added user and returns
-            return lpApiResponse(false, 'User added successfully!', [
-                "user" => Users::where('id', $User->id)->get()
+            return lpApiResponse(true, 'Error adding the User!', [
+                "validations" => $validator->messages()
             ]);
+        }
 
-        }
-        catch (Exception $e)
+        // fill model
+        $User                = new Users;
+        $User->email         = $UserData['email'] ?? '';
+        $User->name          = $UserData['name'] ?? '';
+        $User->password      = $UserData['password'] ?? '';
+        $User->date_of_birth = $UserData['date_of_birth'] ?? '';
+
+        // bcrypt the password
+        $User->password = bcrypt($User->password);
+
+        // check if email already exists | UK
+        $retChkEmail = Users::where('email', $User->email);
+        if ($retChkEmail->exists())
         {
-            return lpApiResponse(true, 'Error adding the User! Message: ' . lpExceptionMsgHandler::getMessage($e));
+            return lpApiResponse(true, 'Email already exists!');
         }
+        
+        // all good, save
+        $User->save();
+
+        // get new added user and returns
+        return lpApiResponse(false, 'User added successfully!', [
+            "user" => Users::where('id', $User->id)->get()
+        ]);
     }
 }

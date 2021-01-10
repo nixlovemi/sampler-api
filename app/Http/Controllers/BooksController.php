@@ -15,7 +15,8 @@ use App\Helpers\lpExceptionMsgHandler;
 class BooksController extends Controller
 {
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->middleware('auth')->except(['getAll', 'show']);
     }
 
@@ -24,22 +25,21 @@ class BooksController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function getAll() {
-        try {
-            // TODO Sampler: implement pagination
-            $books  = Books::where('active', true)
-                            ->orderBy('id');
-                            
-            $bookExists = $books->exists();
-            $response   = lpApiResponse(
-                false,
-                ($bookExists) ? 'Books data returned successfully!': 'No books returned!',
+    public function getAll()
+    {
+        try
+        {
+            $Books    = new Books();
+            $response = $Books->getBooks(
                 [
-                    "books" => ($bookExists) ? $books->get(): [],
+                    'active' => true
                 ]
             );
+
             return response()->json($response, lpHttpResponses::SUCCESS);
-        } catch (Exception $e) {
+        }
+        catch (Exception $e)
+        {
             return lpExceptionMsgHandler::controllerExceptionHandler($e, 'Error while retrieving books!');
         }
     }
@@ -50,20 +50,21 @@ class BooksController extends Controller
      * @param  int  $bookId
      * @return \Illuminate\Http\Response
      */
-    public function show(int $bookId) {
-        try {
-            $book = Books::where('id', $bookId);
-
-            $bookExists = $book->exists();
-            $response   = lpApiResponse(
-                false,
-                ($bookExists) ? 'Book data returned successfully!': "Book #{$bookId} not found!",
+    public function show(int $bookId)
+    {
+        try
+        {
+            $Books    = new Books();
+            $response = $Books->getBooks(
                 [
-                    "book" => ($bookExists) ? $book->get(): [],
+                    'id' => $bookId
                 ]
             );
+
             return response()->json($response, lpHttpResponses::SUCCESS);
-        } catch (Exception $e) {
+        }
+        catch (Exception $e)
+        {
             return lpExceptionMsgHandler::controllerExceptionHandler($e, "Error while retrieving book #{$bookId}!");
         }
     }
@@ -74,48 +75,18 @@ class BooksController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request) {
-        try{
-            $validator = Validator::make($request->all(), [
-                'title'        => ['required', 'string', 'max:255', 'filled'],
-                'isbn'         => ['required', 'string', 'size:10'],
-                'published_at' => ['required', 'date', 'date_format:Y-m-d', 'before:today'],
-            ]);
-
-            // @TODO Sampler: maybe do this along with Validator::make???
-            $validator->after(function ($validator) {
-                $isbnString = $validator->validated()['isbn'] ?? '';
-
-                if ($this->isValidIsbn($isbnString) !== true) {
-                    $validator->errors()->add('isbn', 'Invalid ISBN number!');
-                }
-            });
-            // =================================================
-            
-            if ($validator->fails()) {
-                $response = lpApiResponse(
-                    true,
-                    'Error adding the Book!',
-                    [
-                        $validator->messages()
-                    ]
-                );
-    
-                return response()->json($response, lpHttpResponses::VALIDATION_FAILED);
-            }
-            
+    public function store(Request $request)
+    {
+        try
+        {
             $bookFields = $request->only(['title', 'isbn', 'published_at']);
-            $newBook    = Books::create($bookFields);
-            
-            $response = lpApiResponse(
-                false,
-                "Book added successfully!",
-                [
-                    "book" => $newBook::where('id', $newBook->id)->get()
-                ]
-            );
-            return response()->json($response, lpHttpResponses::SUCCESS);
-        } catch (Exception $e) {
+            $Books      = new Books();
+            $retSave    = $Books->addBook($bookFields);
+
+            return response()->json($retSave, lpHttpResponses::SUCCESS);
+        }
+        catch (Exception $e)
+        {
             return lpExceptionMsgHandler::controllerExceptionHandler($e, 'Error adding the book!');
         }
     }
@@ -127,65 +98,19 @@ class BooksController extends Controller
      * @param  int $bookId
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, int $bookId) {
-        try{
-            $validator = Validator::make($request->all(), [
-                'title'        => ['string', 'max:255', 'filled'],
-                'isbn'         => ['size:10', 'filled'],
-                'published_at' => ['date', 'date_format:Y-m-d', 'before:today'],
-            ]);
-
-            // @TODO check if this is the best way to validate id
-            if(!is_int($bookId) && $bookId <= 0){
-                $validator->errors()->add('id', 'Inform a valid ID!');
-            }
-            // ==================================================
-
-            // @TODO Sampler: maybe do this along with Validator::make???
-            $validator->after(function ($validator) {
-                $isbnString = $validator->validated()['isbn'] ?? '';
-
-                if ($this->isValidIsbn($isbnString, true) !== true) {
-                    $validator->errors()->add('isbn', 'Invalid ISBN number!');
-                }
-            });
-            // =================================================
-            
-            if ($validator->fails()) {
-                $response = lpApiResponse(
-                    true,
-                    'Error updating the Book!',
-                    [
-                        $validator->messages()
-                    ]
-                );
-    
-                return response()->json($response, lpHttpResponses::VALIDATION_FAILED);
-            }
-            
-            $book = Books::where('id', $bookId);
-            if(!$book->exists()){
-                $response = lpApiResponse(
-                    false,
-                    "Book #{$bookId} not found!"
-                );
-                return response()->json($response, lpHttpResponses::SUCCESS);
-            }
-            
+    public function update(Request $request, int $bookId)
+    {
+        try
+        {
             $bookFields = $request->only(['title', 'isbn', 'published_at']);
-            Books::where('id', $bookId)
-                    ->update($bookFields);
-            
-            $response = lpApiResponse(
-                false,
-                "Book updated successfully!",
-                [
-                    "book" => Books::where('id', $bookId)->get()
-                ]
-            );
-            return response()->json($response, lpHttpResponses::SUCCESS);
-        } catch (Exception $e) {
-            return lpExceptionMsgHandler::controllerExceptionHandler($e, 'Error updating the book!');
+            $Books      = new Books();
+            $retSave    = $Books->updateBook($bookId, $bookFields);
+
+            return response()->json($retSave, lpHttpResponses::SUCCESS);
+        }
+        catch (Exception $e)
+        {
+            return lpExceptionMsgHandler::controllerExceptionHandler($e, 'Error editing the book!');
         }
     }
 
@@ -195,24 +120,16 @@ class BooksController extends Controller
      * @param  integer  $bookId
      * @return \Illuminate\Http\Response
      */
-    public function destroy(int $bookId) {
-        try {
-            $book = Books::where('id', $bookId);
-            if(!$book->exists()){
-                $response   = lpApiResponse(
-                    false,
-                    "Book #{$bookId} not found!"
-                );
-                return response()->json($response, lpHttpResponses::SUCCESS);
-            }
-
-            $isDeleted = ($book->delete() == 1);
-            $response  = lpApiResponse(
-                !$isDeleted,
-                ($isDeleted) ? "Book successfully deleted!": "Error deleting the book #{$bookId}!"
-            );
-            return response()->json($response, lpHttpResponses::SUCCESS);
-        } catch (Exception $e) {
+    public function destroy(int $bookId)
+    {
+        try
+        {
+            $Books     = new Books();
+            $retDelete = $Books->deleteBook($bookId);
+            return response()->json($retDelete, lpHttpResponses::SUCCESS);
+        }
+        catch (Exception $e)
+        {
             return lpExceptionMsgHandler::controllerExceptionHandler($e, "Error deleting the book #{$bookId}!");
         }
     }
@@ -224,50 +141,28 @@ class BooksController extends Controller
      * @param  integer  $activate [0 deactivate | 1 activate]
      * @return \Illuminate\Http\Response
      */
-    public function activate(int $bookId, int $activate) {
+    public function activate(int $bookId, int $activate)
+    {
         $bActive = (bool) $activate;
         $sActive = ($bActive) ? 'activated': 'deactivated';
 
         try {
-            $book = Books::where('id', $bookId);
-            if(!$book->exists()){
-                $response   = lpApiResponse(
-                    false,
-                    "Book #{$bookId} not found!"
-                );
-                return response()->json($response, lpHttpResponses::SUCCESS);
+            $Books   = new Books();
+            $retSave = $Books->updateBook($bookId, [
+                'active' => $bActive
+            ]);
+            
+            // just add the 'word' activated/deactivated when success
+            if (!$retSave['error'])
+            {
+                $retSave['message'] .= " Action: {$sActive}";
             }
-            
-            Books::where('id', $bookId)
-                    ->where('active', '<>', $bActive)
-                    ->update(['active' => $bActive]);
-            
-            $response = lpApiResponse(
-                false,
-                "Book {$sActive} successfully!",
-                [
-                    "book" => Books::where('id', $bookId)->get()
-                ]
-            );
-            return response()->json($response, lpHttpResponses::SUCCESS);
-        } catch (Exception $e) {
-            return lpExceptionMsgHandler::controllerExceptionHandler($e, "Error {$sActive} the book #{$bookId}!");
-        }
-    }
 
-    /**
-     * Function to check if isbn number is valid. Can bypass the check when updating the record.
-     *
-     * @param string $isbn
-     * @param boolean $allowEmpty [default false]
-     * @return boolean
-     */
-    private function isValidIsbn(string $isbn, bool $allowEmpty = false) {
-        if($allowEmpty && strlen(trim($isbn)) <= 0) {
-            return true;
+            return response()->json($retSave, lpHttpResponses::SUCCESS);
         }
-        else {
-            return lpValidateIsbn($isbn);
+        catch (Exception $e)
+        {
+            return lpExceptionMsgHandler::controllerExceptionHandler($e, "Error {$sActive} the book #{$bookId}!");
         }
     }
 

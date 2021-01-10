@@ -7,7 +7,8 @@ use Validator;
 
 class AuthController extends Controller
 {
-    public function __construct() {
+    public function __construct()
+    {
         $this->middleware('auth')->except(['login', 'unauthenticated']);
     }
 
@@ -16,7 +17,8 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function me() {
+    public function me()
+    {
         $retUser = auth()->user();
 
         $response = lpApiResponse(
@@ -36,12 +38,14 @@ class AuthController extends Controller
      * @param Request $request [email, password]
      * @return json []
      */
-    public function login(Request $request) {
+    public function login(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'email' => 'required|string',
             'password' => 'required|string',
         ]);
-        if ($validator->fails()) {
+        if ($validator->fails())
+        {
             $response = lpApiResponse(
                 true,
                 'Error logging in!',
@@ -52,9 +56,11 @@ class AuthController extends Controller
 
             return response()->json($response, 401);
         }
-        else {
+        else
+        {
             $credentials = $request->only(['email', 'password']);
-            if (!$token = auth()->attempt($credentials)) {
+            if (!$token = auth()->attempt($credentials))
+            {
                 $response = lpApiResponse(
                     true,
                     'Invalid Credentials.'
@@ -72,7 +78,8 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function logout() {
+    public function logout()
+    {
         auth()->logout();
 
         $response = lpApiResponse(
@@ -88,7 +95,8 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function unauthenticated() {
+    public function unauthenticated()
+    {
         // @TODO Sampler: try to change the response for {"message": "Unauthenticated."}
         $response = lpApiResponse(
             true,
@@ -104,7 +112,8 @@ class AuthController extends Controller
      * @param [type] $token
      * @return \Illuminate\Http\JsonResponse
      */
-    private function respondWithToken($token) {
+    private function respondWithToken($token)
+    {
         $response = lpApiResponse(
             false,
             'Successfully logged in!',
