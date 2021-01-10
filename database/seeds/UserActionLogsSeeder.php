@@ -11,6 +11,6 @@ class UserActionLogsSeeder extends Seeder
      */
     public function run()
     {
-        factory(App\Models\Users::class, 50)->create();
+        factory(App\Models\UserActionLogs::class, 50)->create();
     }
 }

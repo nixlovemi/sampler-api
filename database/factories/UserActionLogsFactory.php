@@ -23,6 +23,6 @@ $factory->define(UserActionLogs::class, function (Faker $faker) {
             return Users::all()->random();
         },
         "action"     => $faker->randomElement(['CHECKIN', 'CHECKOUT']),
-        "created_at" => $faker->date_time_between('-2 years', '-1 day'),
+        "created_at" => $faker->dateTimeBetween('-2 years', '-1 day'),
     ];
 });

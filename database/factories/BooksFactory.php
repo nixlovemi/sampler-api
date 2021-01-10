@@ -53,7 +53,7 @@ $factory->define(Books::class, function (Faker $faker) {
         "title"        => $faker->sentence(rand(2, 5)),
         "isbn"         => $faker->unique()->randomElement($arrValidIsbn),
         // "published_at" => $faker->date_between('-20 years', '-1 month'),
-        "published_at" => $faker->dateTime,
+        "published_at" => $faker->dateTimeBetween('-100 years', '-1 day'),
         "status"       => $faker->randomElement(['CHECKED_OUT', 'AVAILABLE']),
     ];
 });
