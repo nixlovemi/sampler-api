@@ -32,6 +32,11 @@ class AuthenticationException extends Exception
     {
         parent::__construct($message);
 
+        // @TODO Sampler: changed here to maybe redirect to my route
+        if($redirectTo == ''){
+            $redirectTo = route('unauthenticated');
+        }
+
         $this->guards = $guards;
         $this->redirectTo = $redirectTo;
     }

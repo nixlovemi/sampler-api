@@ -64,8 +64,9 @@ class Authenticate
             }
         }
 
+        // @TODO Sampler: chenged this file to get a better message
         throw new AuthenticationException(
-            'Unauthenticated.', $guards, $this->redirectTo($request)
+            'Please authenticate before accessing this route.', $guards, $this->redirectTo($request)
         );
     }
 

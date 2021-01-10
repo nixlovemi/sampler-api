@@ -1,3 +1,7 @@
+[PROCESS KILL]
+> lsof -i :8000
+> sudo kill -9 34955
+
 [RESTFULL]
 https://restfulapi.net/rest-put-vs-post/
 > Content-Type: application/x-www-form-urlencoded

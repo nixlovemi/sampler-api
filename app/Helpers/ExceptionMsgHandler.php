@@ -189,6 +189,12 @@ final class lpExceptionMsgHandler {
         'XX002' => 'INDEX CORRUPTED'
     );
 
+    /**
+     * Based on $e (Exception), return a string with the error
+     *
+     * @param Exception $e
+     * @return string
+     */
     static function getMessage(Exception $e) {
         $excpName        = get_class($e);
         $errorCode       = $e->getCode();
@@ -201,5 +207,20 @@ final class lpExceptionMsgHandler {
         else {
             return $e->getMessage();
         }
+    }
+
+    /**
+     * Return to the controller a default string for try/catch handling
+     *
+     * @param Exception $e
+     * @param string $message
+     * @return string
+     */
+    static function controllerExceptionHandler(Exception $e, string $message) {
+        $response = lpApiResponse(
+            true,
+            "{$message} Message: " . lpExceptionMsgHandler::getMessage($e)
+        );
+        return $response;
     }
 }

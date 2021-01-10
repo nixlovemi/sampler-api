@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 // use Illuminate\Validation\Rule;
 use App\Models\Books;
 use Illuminate\Http\Request;
-use \Exception;
 use Validator;
+use \Exception;
 use App\Helpers\lpHttpResponses;
 use App\Helpers\lpExceptionMsgHandler;
 
@@ -40,7 +40,7 @@ class BooksController extends Controller
             );
             return response()->json($response, lpHttpResponses::SUCCESS);
         } catch (Exception $e) {
-            $this->exceptionHandler($e, 'Error while retrieving books!');
+            return lpExceptionMsgHandler::controllerExceptionHandler($e, 'Error while retrieving books!');
         }
     }
 
@@ -64,7 +64,7 @@ class BooksController extends Controller
             );
             return response()->json($response, lpHttpResponses::SUCCESS);
         } catch (Exception $e) {
-            $this->exceptionHandler($e, "Error while retrieving book #{$bookId}!");
+            return lpExceptionMsgHandler::controllerExceptionHandler($e, "Error while retrieving book #{$bookId}!");
         }
     }
 
@@ -116,7 +116,7 @@ class BooksController extends Controller
             );
             return response()->json($response, lpHttpResponses::SUCCESS);
         } catch (Exception $e) {
-            $this->exceptionHandler($e, 'Error adding the book!');
+            return lpExceptionMsgHandler::controllerExceptionHandler($e, 'Error adding the book!');
         }
     }
 
@@ -185,7 +185,7 @@ class BooksController extends Controller
             );
             return response()->json($response, lpHttpResponses::SUCCESS);
         } catch (Exception $e) {
-            $this->exceptionHandler($e, 'Error updating the book!');
+            return lpExceptionMsgHandler::controllerExceptionHandler($e, 'Error updating the book!');
         }
     }
 
@@ -213,7 +213,7 @@ class BooksController extends Controller
             );
             return response()->json($response, lpHttpResponses::SUCCESS);
         } catch (Exception $e) {
-            $this->exceptionHandler($e, "Error deleting the book #{$bookId}!");
+            return lpExceptionMsgHandler::controllerExceptionHandler($e, "Error deleting the book #{$bookId}!");
         }
     }
 
@@ -251,7 +251,7 @@ class BooksController extends Controller
             );
             return response()->json($response, lpHttpResponses::SUCCESS);
         } catch (Exception $e) {
-            $this->exceptionHandler($e, "Error {$sActive} the book #{$bookId}!");
+            return lpExceptionMsgHandler::controllerExceptionHandler($e, "Error {$sActive} the book #{$bookId}!");
         }
     }
 
@@ -269,21 +269,6 @@ class BooksController extends Controller
         else {
             return lpValidateIsbn($isbn);
         }
-    }
-
-    /**
-     * A better way to centralize the exception handler
-     *
-     * @param Exception $e
-     * @param string $message
-     * @return \Illuminate\Http\Response
-     */
-    private function exceptionHandler(Exception $e, string $message) {
-        $response = lpApiResponse(
-            true,
-            "{$message} Message: " . lpExceptionMsgHandler::getMessage($e)
-        );
-        return response()->json($response, lpHttpResponses::SERVER_ERROR);
     }
 
 }

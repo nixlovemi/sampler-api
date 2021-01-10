@@ -1,5 +1,4 @@
 <?php
-
 use Illuminate\Http\Request;
 
 /*
@@ -13,14 +12,15 @@ use Illuminate\Http\Request;
 |
 */
 
-/*Route::middleware('auth:api')->get('/user', function (Request $request) {
+/*
+Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
-});*/
+});
+*/
 
 Route::get('me', 'AuthController@me');
 Route::get('unauthenticated', 'AuthController@unauthenticated')->name('unauthenticated');
 Route::post('login', 'AuthController@login');
-// Route::post('register', 'AuthController@register');
 Route::post('logout', 'AuthController@logout');
 
 Route::prefix('books')->group(function () {
@@ -29,5 +29,11 @@ Route::prefix('books')->group(function () {
     Route::post('/', 'BooksController@store');
     Route::put('/{id}', 'BooksController@update')->where('id', '[0-9]+');
     Route::delete('/{id}', 'BooksController@destroy')->where('id', '[0-9]+');
-    Route::patch('/{id}/{activate}', 'BooksController@activate')->where('id', '[0-9]+')->where('activate', '[0-1]+');
+    Route::patch('/{id}/{activate}', 'BooksController@activate')
+            ->where('id', '[0-9]+')
+            ->where('activate', '[0-1]+');
+});
+
+Route::prefix('users')->group(function () {
+    Route::post('/', 'UsersController@store');
 });

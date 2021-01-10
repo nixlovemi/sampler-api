@@ -19,6 +19,7 @@ class CreateUsersTable extends Migration
         - name (string with max length of 255 characters) [OK]
         - password (min 8 characters, min 1 capital letter, 1 number) [OK]
         - date_of_birth (Date in format YYYY-MM-DD) [OK]
+        - active (bool) [OK]
         */
         Schema::create('users', function (Blueprint $table) {
             $table->bigIncrements('id');
