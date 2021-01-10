@@ -70,12 +70,7 @@ class AuthController extends Controller
     public function logout()
     {
         auth()->logout();
-
-        $response = lpApiResponse(
-            false,
-            'Successfully logged out!'
-        );
-
+        $response = lpApiResponse(false, 'Successfully logged out!');
         return response()->json($response, Response::HTTP_OK);
     }
 
