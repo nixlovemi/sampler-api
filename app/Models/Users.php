@@ -7,6 +7,15 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 // class Users extends Model
 class Users extends Authenticatable implements JWTSubject
 {
+    /**
+     * The model's default values for attributes.
+     *
+     * @var array
+     */
+    protected $attributes = [
+        'active' => true
+    ];
+
     public $timestamps = false; // prevent created/updated_at
     public const NEW_USER_RULES = [
         'email'         => ['required', 'email:rfc,dns', 'max:255', 'filled'],
@@ -90,10 +99,11 @@ class Users extends Authenticatable implements JWTSubject
         
         // all good, save
         $User->save();
+        $User->refresh();
 
         // get new added user and returns
         return lpApiResponse(false, 'User added successfully!', [
-            "user" => Users::where('id', $User->id)->get()
+            "user" => $User
         ]);
     }
 }

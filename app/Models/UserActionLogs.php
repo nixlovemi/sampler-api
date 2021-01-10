@@ -57,10 +57,11 @@ class UserActionLogs extends Model
 
         // all good, save
         $UALog->save();
+        $UALog->refresh();
 
         // get new added user action log
         return lpApiResponse(false, 'User action log added successfully!', [
-            "book" => Books::where('id', $UALog->id)->get()
+            "book" => $UALog
         ]);
     }
 }

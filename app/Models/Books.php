@@ -7,6 +7,16 @@ use Illuminate\Support\Facades\DB;
 
 class Books extends Authenticatable
 {
+    /**
+     * The model's default values for attributes.
+     *
+     * @var array
+     */
+    protected $attributes = [
+        'status' => 'AVAILABLE',
+        'active' => true
+    ];
+
     public $timestamps = false;
     protected $fillable = ['title', 'isbn', 'published_at'];
     public const NEW_BOOK_RULES = [
@@ -105,10 +115,11 @@ class Books extends Authenticatable
 
         // all good, save
         $Book->save();
+        $Book->refresh();
 
         // get new added book and returns
         return lpApiResponse(false, 'Book added successfully!', [
-            "book" => Books::where('id', $Book->id)->get()
+            "book" => $Book
         ]);
     }
 
@@ -156,14 +167,11 @@ class Books extends Authenticatable
         }
 
         // get the book by id
-        $retBook = Books::where('id', $bookId);
-        if (!$retBook->exists())
+        $Book = Books::find($bookId);
+        if (empty($Book))
         {
             return lpApiResponse(true, "Book #{$bookId} not found!");
         }
-
-        // retrive book from DB
-        $Book = $retBook->first();
 
         // if isbn changed, check if the new isbn already exists | UK
         if (isset($BookData['isbn']) && $Book->isbn != $BookData['isbn'])
@@ -181,7 +189,7 @@ class Books extends Authenticatable
 
         // get new edited book and returns
         return lpApiResponse(false, 'Book edited successfully!', [
-            "book" => Books::where('id', $bookId)->get()
+            "book" => Books::findOrFail($bookId)
         ]);
     }
 
@@ -194,14 +202,14 @@ class Books extends Authenticatable
     public function deleteBook(int $bookId)
     {
         // get the book by id
-        $retBook = Books::where('id', $bookId);
-        if (!$retBook->exists())
+        $Book = Books::find($bookId);
+        if (empty($Book))
         {
             return lpApiResponse(true, "Book #{$bookId} not found!");
         }
 
         // all good, delete
-        $isDeleted = ($retBook->delete() == 1);
+        $isDeleted = ($Book->delete() == 1);
         $strDelete = ($isDeleted) ? 'Book successfully deleted!': "Error deleting the book #{$bookId}!";
 
         return lpApiResponse(!$isDeleted, $strDelete);
@@ -216,14 +224,11 @@ class Books extends Authenticatable
     public function checkoutBook (int $bookId)
     {
         // get the book by id
-        $retBook = Books::where('id', $bookId);
-        if (!$retBook->exists())
+        $Book = Books::find($bookId);
+        if (empty($Book))
         {
             return lpApiResponse(true, "Book #{$bookId} not found!");
         }
-
-        // retrive book from DB
-        $Book = $retBook->first();
 
         // check if active
         if (!$Book->active)
@@ -234,7 +239,7 @@ class Books extends Authenticatable
         // check availability
         if ($Book->status == Books::BOOK_STATUS_UNAVAILABLE)
         {
-            return lpApiResponse(true, "The Book #{$bookId} is unavailable!");
+            return lpApiResponse(true, "Book #{$bookId} is unavailable!");
         }
 
         // all good, check-out
@@ -284,19 +289,16 @@ class Books extends Authenticatable
     public function checkinBook (int $bookId)
     {
         // get the book by id
-        $retBook = Books::where('id', $bookId);
-        if (!$retBook->exists())
+        $Book = Books::find($bookId);
+        if (empty($Book))
         {
             return lpApiResponse(true, "Book #{$bookId} not found!");
         }
 
-        // retrive book from DB
-        $Book = $retBook->first();
-
         // check availability
         if ($Book->status == Books::BOOK_STATUS_AVAILABLE)
         {
-            return lpApiResponse(true, "Can not check-out an available Book #{$bookId}!");
+            return lpApiResponse(true, "Can not check-in an available Book #{$bookId}!");
         }
 
         // all good, check-in
