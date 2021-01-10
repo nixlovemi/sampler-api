@@ -34,6 +34,7 @@ Route::prefix('books')->group(function () {
             ->where('activate', '[0-1]+');
     
     Route::post('/checkin/{id}', 'BooksController@checkIn')->where('id', '[0-9]+');
+    Route::post('/checkout/{id}', 'BooksController@checkOut')->where('id', '[0-9]+');
 });
 
 Route::prefix('users')->group(function () {

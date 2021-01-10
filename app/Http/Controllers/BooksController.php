@@ -1,17 +1,12 @@
 <?php
 namespace App\Http\Controllers;
 
-// use PhpParser\Node\Stmt\TryCatch;
-// use Illuminate\Validation\Rule;
 use App\Models\Books;
 use Illuminate\Http\Request;
-use Validator;
 use \Exception;
 use App\Helpers\lpHttpResponses;
 use App\Helpers\lpExceptionMsgHandler;
 
-// @TODO Sampler: maybe improve this try/catch block???
-// @TODO Sampler: improve error handling when adding
 class BooksController extends Controller
 {
 
@@ -166,6 +161,12 @@ class BooksController extends Controller
         }
     }
 
+    /**
+     * Check-in a book
+     *
+     * @param integer $bookId
+     * @return \Illuminate\Http\Response
+     */
     public function checkIn(int $bookId)
     {
         try
@@ -180,4 +181,17 @@ class BooksController extends Controller
         }
     }
 
+    public function checkOut(int $bookId)
+    {
+        try
+        {
+            $Books       = new Books();
+            $retCheckOut = $Books->checkoutBook($bookId);
+            return response()->json($retCheckOut, lpHttpResponses::SUCCESS);
+        }
+        catch (Exception $e)
+        {
+            return lpExceptionMsgHandler::controllerExceptionHandler($e, "Check-out process error for book #{$bookId}!");
+        }
+    }
 }
