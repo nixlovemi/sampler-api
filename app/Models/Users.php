@@ -43,30 +43,45 @@ class Users extends Authenticatable implements JWTSubject
         return auth()->user()->getAttributes()['id'] ?? null;
     }
 
-     /**
-     * Get the identifier that will be stored in the subject claim of the JWT.
-     *
-     * @return mixed
-     */
-    public function getJWTIdentifier()
-    {
-        return $this->getKey();
-    }
-
     /**
-     * Return a key value array, containing any custom claims to be added to the JWT.
+     * Get all the users with optional filters
      *
-     * @return array
+     * @param array $filters [active: bool]
+     * @return array lpApiResponse
      */
-    public function getJWTCustomClaims()
+    public function getUsers($filters=[])
     {
-        return [];
+        // filters
+        $id     = $filters['id'] ?? null;
+        $active = $filters['active'] ?? null;
+
+        // filter the database
+        // TODO Sampler: implement pagination
+        $users = Users::select('id', 'email', 'name', 'date_of_birth', 'active');
+        if ($id !== null)
+        {
+            $users->where('id', $id);
+        }
+        if ($active !== null)
+        {
+            $users->where('active', $active);
+        }
+        $users->orderBy('id');
+
+        // messages
+        $usersExists = $users->exists();
+        $message     = ($usersExists) ? 'User data returned successfully!': 'No users returned!';
+        $arrUsers    = ($usersExists) ? $users->get(): [];
+
+        return lpApiResponse(false, $message, [
+            'users' => $arrUsers
+        ]);
     }
 
     /**
      * Adds a new user
      *
-     * @param array $UserData [key/value with the name/value of the table fields. Ex: ['name' => 'leandro', 'email' => 'leandro@leandro.com'] ...]
+     * @param array $UserData [key/value with the name/value of the table fields. Ex: ['name' => 'leandro', 'email' => 'leandro@sampler.io'] ...]
      * @return array lpApiResponse
      */
     public function addUser(array $UserData)
@@ -100,10 +115,131 @@ class Users extends Authenticatable implements JWTSubject
         // all good, save
         $User->save();
         $User->refresh();
+        $User->setHidden(['password']);
 
         // get new added user and returns
         return lpApiResponse(false, 'User added successfully!', [
             "user" => $User
         ]);
+    }
+
+    /**
+     * Updates a user
+     *
+     * @param integer $userId
+     * @param array $UserData [key/value with the name/value of the table fields. Ex: ['name' => 'leandro', 'email' => 'leandro@sampler.io'] ...]
+     * @return array lpApiResponse
+     */
+    public function updateUser(int $userId, array $UserData)
+    {
+        // check empty $UserData
+        if (count($UserData) <= 0)
+        {
+            return lpApiResponse(true, 'Empty user data!');
+        }
+
+        // users can change only their own ID
+        if ($userId != Users::getLoggedUserId())
+        {
+            return lpApiResponse(true, "Can't change other user register.");
+        }
+
+        // get rules and remove the required param
+        $arrUpdateRules = [];
+        foreach (Users::NEW_USER_RULES as $ruleKey => $arrRules)
+        {
+            $arrUpdateRules[$ruleKey] = array_filter($arrRules, function($value) {
+                return $value != 'required';
+            });
+        }
+
+        // check rules for editing a user
+        $validator = Validator::make($UserData, $arrUpdateRules);
+        if ($validator->fails())
+        {
+            return lpApiResponse(true, 'Error editing the User!', [
+                "validations" => $validator->messages()
+            ]);
+        }
+
+        // get the user by id
+        $User = Users::find($userId);
+        if (empty($User))
+        {
+            return lpApiResponse(true, "User #{$userId} not found!");
+        }
+
+        // if email changed, check if the new email already exists | UK
+        if (isset($UserData['email']) && $User->email != $UserData['email'])
+        {
+            $retChkEmail = Users::where('email', $UserData['email']);
+            if ($retChkEmail->exists())
+            {
+                return lpApiResponse(true, 'Email already exists!');
+            }
+        }
+
+        // bcrypt the password
+        if (isset($UserData['password']))
+        {
+            $UserData['password'] = bcrypt($UserData['password']);
+        }
+
+        // all good, update
+        Users::where('id', $userId)
+                ->update($UserData);
+
+        // get new edited user and returns
+        return lpApiResponse(false, 'User edited successfully!', [
+            "user" => Users::findOrFail($userId)->setHidden(['password'])
+        ]);
+    }
+
+    /**
+     * Deletes a user
+     *
+     * @param integer $userId
+     * @return array lpApiResponse
+     */
+    public function deleteUser(int $userId)
+    {
+        // get the user by id
+        $User = Users::find($userId);
+        if (empty($User))
+        {
+            return lpApiResponse(true, "User #{$userId} not found!");
+        }
+
+        // users can change only their own ID
+        if ($userId != Users::getLoggedUserId())
+        {
+            return lpApiResponse(true, "Can't delete other user register.");
+        }
+
+        // all good, delete
+        $isDeleted = ($User->delete() == 1);
+        $strDelete = ($isDeleted) ? 'User successfully deleted!': "Error deleting the user #{$userId}!";
+
+        return lpApiResponse(!$isDeleted, $strDelete);
+    }
+
+     /**
+     * Get the identifier that will be stored in the subject claim of the JWT.
+     *
+     * @return mixed
+     */
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    /**
+     * Return a key value array, containing any custom claims to be added to the JWT.
+     *
+     * @return array
+     */
+    public function getJWTCustomClaims()
+    {
+        return [];
     }
 }

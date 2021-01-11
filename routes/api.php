@@ -32,7 +32,7 @@ Route::post('logout', 'AuthController@logout');
 
 Route::prefix('books')->group(function ()
 {
-    Route::get('/', 'BooksController@getAll')/*->where('page', '[0-9]+')*/; //@TODO Sampler: implement pagination
+    Route::get('/', 'BooksController@getAll'); //@TODO Sampler: implement pagination
     Route::get('/{id}', 'BooksController@show')->where('id', '[0-9]+');
     Route::post('/', 'BooksController@store');
     Route::put('/{id}', 'BooksController@update')->where('id', '[0-9]+');
@@ -47,5 +47,12 @@ Route::prefix('books')->group(function ()
 
 Route::prefix('users')->group(function ()
 {
+    Route::get('/', 'UsersController@getAll'); //@TODO Sampler: implement pagination
+    Route::get('/{id}', 'UsersController@show')->where('id', '[0-9]+');
     Route::post('/', 'UsersController@store');
+    Route::put('/{id}', 'UsersController@update')->where('id', '[0-9]+');
+    Route::delete('/{id}', 'UsersController@destroy')->where('id', '[0-9]+');
+    Route::patch('/{id}/{activate}', 'UsersController@activate')
+            ->where('id', '[0-9]+')
+            ->where('activate', '[0-1]+');
 });

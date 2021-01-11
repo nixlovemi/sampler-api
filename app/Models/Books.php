@@ -124,7 +124,7 @@ class Books extends Authenticatable
     }
 
     /**
-     * Updates a new book
+     * Updates a book
      *
      * @param integer $bookId
      * @param array $BookData [key/value with the name/value of the table fields. Ex: ['tilte' => 'harry potter', 'isbn' => '1234567980'] ...]
@@ -176,8 +176,8 @@ class Books extends Authenticatable
         // if isbn changed, check if the new isbn already exists | UK
         if (isset($BookData['isbn']) && $Book->isbn != $BookData['isbn'])
         {
-            $retChkEmail = Books::where('isbn', $BookData['isbn']);
-            if ($retChkEmail->exists())
+            $retChkIsbn = Books::where('isbn', $BookData['isbn']);
+            if ($retChkIsbn->exists())
             {
                 return lpApiResponse(true, 'ISBN already exists!');
             }
