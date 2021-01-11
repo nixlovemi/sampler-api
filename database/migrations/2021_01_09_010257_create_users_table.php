@@ -21,6 +21,7 @@ class CreateUsersTable extends Migration
         - date_of_birth (Date in format YYYY-MM-DD) [OK]
 
         - active (bool) [OK]
+        - superuser (bool, default false)
         */
         Schema::create('users', function (Blueprint $table) {
             $table->bigIncrements('id');
@@ -29,6 +30,7 @@ class CreateUsersTable extends Migration
             $table->string('password', 100);
             $table->date('date_of_birth');
             $table->boolean('active')->default(true);
+            $table->boolean('superuser')->default(false);
         });
     }
 

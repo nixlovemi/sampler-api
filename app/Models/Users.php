@@ -13,7 +13,8 @@ class Users extends Authenticatable implements JWTSubject
      * @var array
      */
     protected $attributes = [
-        'active' => true
+        'active'    => true,
+        'superuser' => false,
     ];
 
     public $timestamps = false; // prevent created/updated_at
@@ -41,6 +42,12 @@ class Users extends Authenticatable implements JWTSubject
     public static function getLoggedUserId()
     {
         return auth()->user()->getAttributes()['id'] ?? null;
+    }
+
+    public static function isSuperuser(int $userId)
+    {
+        $retSU = Users::where('id', $userId)->where('superuser', true);
+        return $retSU->exists();
     }
 
     /**
@@ -109,7 +116,11 @@ class Users extends Authenticatable implements JWTSubject
         $retChkEmail = Users::where('email', $User->email);
         if ($retChkEmail->exists())
         {
-            return lpApiResponse(true, 'Email already exists!');
+            return lpApiResponse(true, 'Error adding the User!', [
+                'validations' => [
+                    'email' => 'Email already exists!'
+                ]
+            ]);
         }
         
         // all good, save
@@ -138,8 +149,8 @@ class Users extends Authenticatable implements JWTSubject
             return lpApiResponse(true, 'Empty user data!');
         }
 
-        // users can change only their own ID
-        if ($userId != Users::getLoggedUserId())
+        // users can change only their own ID; superuser can bypass this
+        if (!Users::isSuperuser(Users::getLoggedUserId()) && $userId != Users::getLoggedUserId())
         {
             return lpApiResponse(true, "Can't change other user register.");
         }
@@ -175,7 +186,11 @@ class Users extends Authenticatable implements JWTSubject
             $retChkEmail = Users::where('email', $UserData['email']);
             if ($retChkEmail->exists())
             {
-                return lpApiResponse(true, 'Email already exists!');
+                return lpApiResponse(true, 'Error editing the User!', [
+                    'validations' => [
+                        'email' => 'Email already exists!'
+                    ]
+                ]);
             }
         }
 
@@ -210,8 +225,8 @@ class Users extends Authenticatable implements JWTSubject
             return lpApiResponse(true, "User #{$userId} not found!");
         }
 
-        // users can change only their own ID
-        if ($userId != Users::getLoggedUserId())
+        // users can change only their own ID; superuser can bypass this
+        if (!Users::isSuperuser(Users::getLoggedUserId()) && $userId != Users::getLoggedUserId())
         {
             return lpApiResponse(true, "Can't delete other user register.");
         }
