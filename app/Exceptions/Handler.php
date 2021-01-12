@@ -51,6 +51,12 @@ class Handler extends ExceptionHandler
             $return = lpExceptionMsgHandler::controllerExceptionHandler($exception, "This method is not available for this route!");
             return response()->json($return, Response::HTTP_METHOD_NOT_ALLOWED);
         }
+        else if (strpos(get_class($exception), 'Auth\AuthenticationException') !== false)
+        {
+            $return = lpExceptionMsgHandler::controllerExceptionHandler($exception, "Authentication error!");
+            return response()->json($return, Response::HTTP_UNAUTHORIZED);
+        }
+        
         return parent::render($request, $exception);
     }
 }

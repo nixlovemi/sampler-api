@@ -13,6 +13,7 @@ class BooksController extends Controller
     public function __construct()
     {
         $this->middleware('auth')->except(['getAll', 'show']);
+        $this->middleware('superuser')->except(['getAll', 'show', 'checkOut', 'checkIn']);
     }
 
     /**

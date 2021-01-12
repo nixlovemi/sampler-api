@@ -16,7 +16,6 @@ class Users extends Authenticatable implements JWTSubject
         'active'    => true,
         'superuser' => false,
     ];
-
     public $timestamps = false; // prevent created/updated_at
     public const NEW_USER_RULES = [
         'email'         => ['required', 'email:rfc,dns', 'max:255', 'filled'],
@@ -45,6 +44,12 @@ class Users extends Authenticatable implements JWTSubject
         return auth()->user()->getAttributes()['id'] ?? null;
     }
 
+    /**
+     * Check if user is a superuser
+     *
+     * @param integer $userId
+     * @return boolean
+     */
     public static function isSuperuser(int $userId)
     {
         $retSU = Users::where('id', $userId)->where('superuser', true);

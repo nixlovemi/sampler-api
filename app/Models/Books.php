@@ -17,7 +17,6 @@ class Books extends Authenticatable
         'status' => 'AVAILABLE',
         'active' => true
     ];
-
     public $timestamps = false;
     protected $fillable = ['title', 'isbn', 'published_at'];
     public const NEW_BOOK_RULES = [
@@ -76,12 +75,6 @@ class Books extends Authenticatable
      */
     public function addBook(array $BookData)
     {
-        // only superuser can add book
-        if (!Users::isSuperuser(Users::getLoggedUserId()))
-        {
-            return lpApiResponse(true, "You don't have permission to perform this action!");
-        }
-
         // check empty $BookData
         if (count($BookData) <= 0)
         {
@@ -139,12 +132,6 @@ class Books extends Authenticatable
      */
     public function updateBook(int $bookId, array $BookData)
     {
-        // only superuser can edit book
-        if (!Users::isSuperuser(Users::getLoggedUserId()))
-        {
-            return lpApiResponse(true, "You don't have permission to perform this action!");
-        }
-
         // check empty $BookData
         if (count($BookData) <= 0)
         {
@@ -214,12 +201,6 @@ class Books extends Authenticatable
      */
     public function deleteBook(int $bookId)
     {
-        // only superuser can delete book
-        if (!Users::isSuperuser(Users::getLoggedUserId()))
-        {
-            return lpApiResponse(true, "You don't have permission to perform this action!");
-        }
-
         // get the book by id
         $Book = Books::find($bookId);
         if (empty($Book))
