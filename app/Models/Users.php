@@ -28,6 +28,7 @@ class Users extends Authenticatable implements JWTSubject
         'name.regex'     => 'Enter a valid name.',
         'password.regex' => 'The password must have 1 capital letter and 1 number.'
     ];
+    private const HIDDEN_FIELDS = ['password', 'superuser'];
 
     public function logs()
     {
@@ -126,7 +127,7 @@ class Users extends Authenticatable implements JWTSubject
         // all good, save
         $User->save();
         $User->refresh();
-        $User->setHidden(['password']);
+        $User->setHidden(Users::HIDDEN_FIELDS);
 
         // get new added user and returns
         return lpApiResponse(false, 'User added successfully!', [
@@ -143,16 +144,16 @@ class Users extends Authenticatable implements JWTSubject
      */
     public function updateUser(int $userId, array $UserData)
     {
-        // check empty $UserData
-        if (count($UserData) <= 0)
-        {
-            return lpApiResponse(true, 'Empty user data!');
-        }
-
         // users can change only their own ID; superuser can bypass this
         if (!Users::isSuperuser(Users::getLoggedUserId()) && $userId != Users::getLoggedUserId())
         {
             return lpApiResponse(true, "Can't change other user register.");
+        }
+
+        // check empty $UserData
+        if (count($UserData) <= 0)
+        {
+            return lpApiResponse(true, 'Empty user data!');
         }
 
         // get rules and remove the required param
@@ -206,7 +207,7 @@ class Users extends Authenticatable implements JWTSubject
 
         // get new edited user and returns
         return lpApiResponse(false, 'User edited successfully!', [
-            "user" => Users::findOrFail($userId)->setHidden(['password'])
+            "user" => Users::findOrFail($userId)->setHidden(Users::HIDDEN_FIELDS)
         ]);
     }
 
@@ -223,12 +224,6 @@ class Users extends Authenticatable implements JWTSubject
         if (empty($User))
         {
             return lpApiResponse(true, "User #{$userId} not found!");
-        }
-
-        // users can change only their own ID; superuser can bypass this
-        if (!Users::isSuperuser(Users::getLoggedUserId()) && $userId != Users::getLoggedUserId())
-        {
-            return lpApiResponse(true, "Can't delete other user register.");
         }
 
         // all good, delete

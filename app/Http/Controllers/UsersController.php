@@ -11,11 +11,12 @@ class UsersController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth')->except(['getAll', 'show', 'store']);
+        $this->middleware('auth')->except(['store']);
+        $this->middleware('superuser')->except(['store', 'update', 'activate']);
     }
 
     /**
-     * Display a listing of the resource.
+     * Display a listing of the resource. Only superusers can get the user's list.
      *
      * @return \Illuminate\Http\Response
      */
@@ -40,7 +41,7 @@ class UsersController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Display the specified resource. Only superuser can get user register by ID.
      *
      * @param  int  $userId
      * @return \Illuminate\Http\Response
@@ -99,6 +100,13 @@ class UsersController extends Controller
     {
         try
         {
+            // users can change only their own ID; superuser can bypass this
+            if (!Users::isSuperuser(Users::getLoggedUserId()) && $userId != Users::getLoggedUserId())
+            {
+                $message = lpApiResponse(true, "Can't change other user register.");
+                return response()->json($message, Response::HTTP_FORBIDDEN);
+            }
+
             $userFields = $request->only(['email', 'name', 'password', 'date_of_birth']);
             $Users      = new Users();
             $retSave    = $Users->updateUser($userId, $userFields);
@@ -113,7 +121,7 @@ class UsersController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified resource from storage. Only superuser can delete users.
      *
      * @param  integer  $userId
      * @return \Illuminate\Http\Response
