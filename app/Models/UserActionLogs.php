@@ -64,4 +64,14 @@ class UserActionLogs extends Model
             "book" => $UALog
         ]);
     }
+
+    public function getBookLastLog(int $bookId)
+    {
+        // get last inserted log
+        $BookLastLog = UserActionLogs::where('book_id', $bookId)
+                                        ->orderByDesc('id')
+                                        ->limit(1);
+        
+        return (!$BookLastLog->exists()) ? null: $BookLastLog->first();
+    }
 }

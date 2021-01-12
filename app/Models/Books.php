@@ -301,6 +301,14 @@ class Books extends Authenticatable
             return lpApiResponse(true, "Can not check-in an available Book #{$bookId}!");
         }
 
+        // check if book is with current user; superuser can bypass this
+        $UALogs      = new UserActionLogs();
+        $BookLastLog = $UALogs->getBookLastLog($bookId);
+        if(!Users::isSuperuser(Users::getLoggedUserId()) && $BookLastLog->user_id != Users::getLoggedUserId())
+        {
+            return lpApiResponse(true, "You cannot check in this book #{$bookId} because you didn't checked it out.");
+        }
+
         // all good, check-in
         DB::beginTransaction();
 
@@ -319,7 +327,7 @@ class Books extends Authenticatable
         // add the log
         $UALogs = new UserActionLogs();
         $retLog = $UALogs->addLog([
-            'book_id'    => $bookId,
+            'book_id'    => $Book->id,
             'user_id'    => Users::getLoggedUserId(),
             'action'     => UserActionLogs::USER_ACT_LOG_ACTION_CHECKIN,
             'created_at' => date('Y-m-d H:i:s'),
@@ -327,7 +335,7 @@ class Books extends Authenticatable
         if ($retLog['error'])
         {
             DB::rollBack();
-            $retLog['message'] = "Check-in process error for book #{$bookId}! " . ($retLog['message'] ?? '');
+            $retLog['message'] = "Check-in process error for book #{$Book->id}! " . ($retLog['message'] ?? '');
             return $retLog;
         }
 
