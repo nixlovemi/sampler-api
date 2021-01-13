@@ -4,6 +4,7 @@
 # $response->getContent()
 
 namespace Tests\Feature;
+use Tests\Unit\BookModelTest;
 use App\Models\Users;
 use App\Models\Books;
 use Tests\TestCase;
@@ -72,14 +73,11 @@ class BookCheckinTest extends TestCase
 
         // get a book id that can be checked in
         // same here = model?
-        $Book = Books::firstOrCreate(
-            ['status' => 'CHECKED_OUT'],
-            [
-                'title'        => 'Harry Potter 100',
-                'isbn'         => '8508136110',
-                'published_at' => '1950-01-01',
-            ]
-        );
+        $Book = BookModelTest::createTestBook([
+            'title'        => 'Harry Potter 100',
+            'isbn'         => '8508136110',
+            'published_at' => '1950-01-01',
+        ]);
         if($Book->status == 'AVAILABLE')
         {
             // checkout book

@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Books;
+use App\Models\Users;
 use Illuminate\Http\Request;
 use \Exception;
 use App\Helpers\lpExceptionMsgHandler;
@@ -179,7 +180,8 @@ class BooksController extends Controller
         try
         {
             $Books       = new Books();
-            $retCheckOut = $Books->checkoutBook($bookId);
+            $userId      = Users::getLoggedUserId();
+            $retCheckOut = $Books->checkoutBook($bookId, $userId);
             return response()->json($retCheckOut, Response::HTTP_OK);
         }
         catch (Exception $e)

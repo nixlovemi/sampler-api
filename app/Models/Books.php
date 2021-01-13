@@ -219,9 +219,10 @@ class Books extends Authenticatable
      * Check-out a book (get a book from the 'library')
      *
      * @param integer $bookId
+     * @param integer $loggedUserId
      * @return array lpApiResponse
      */
-    public function checkoutBook (int $bookId)
+    public function checkoutBook (int $bookId, int $loggedUserId)
     {
         // get the book by id
         $Book = Books::find($bookId);
@@ -261,7 +262,7 @@ class Books extends Authenticatable
         $UALogs = new UserActionLogs();
         $retLog = $UALogs->addLog([
             'book_id'    => $bookId,
-            'user_id'    => Users::getLoggedUserId(),
+            'user_id'    => $loggedUserId,
             'action'     => UserActionLogs::USER_ACT_LOG_ACTION_CHECKOUT,
             'created_at' => date('Y-m-d H:i:s'),
         ]);
