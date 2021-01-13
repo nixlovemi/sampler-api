@@ -24,7 +24,7 @@ class BookCheckinTest extends TestCase
      *
      * @return Users
      */
-    private function createSuperUser()
+    public function createSuperUser()
     {
         $User         = Users::firstOrCreate(
             ['email' => $this->_userEmail],
@@ -49,7 +49,7 @@ class BookCheckinTest extends TestCase
      * @param string $password
      * @return string $accessToken
      */
-    private function logInUser(string $email, string $password)
+    public function logInUser(string $email, string $password)
     {
         $loginBody = [
             'email'    => $email,
@@ -88,7 +88,7 @@ class BookCheckinTest extends TestCase
      * @param string $accessToken
      * @return void
      */
-    private function checkInBook(int $bookId, string $accessToken)
+    public function checkInBook(int $bookId, string $accessToken)
     {
         $checkinHeaders = [
             'Authorization' => "Bearer {$accessToken}",
@@ -110,7 +110,7 @@ class BookCheckinTest extends TestCase
      * @param string $accessToken
      * @return void
      */
-    private function checkOutBook(int $bookId, string $accessToken)
+    public function checkOutBook(int $bookId, string $accessToken)
     {
         $checkoutHeaders = [
             'Authorization' => "Bearer {$accessToken}",
@@ -124,6 +124,7 @@ class BookCheckinTest extends TestCase
         $arrCheckoutResponse = $checkoutResp->decodeResponseJson();
         $this->assertFalse($arrCheckoutResponse['error'], 'Checkout returned error = true');
     }
+
 
     public function testBookCheckinProcessOk()
     {
