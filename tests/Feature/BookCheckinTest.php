@@ -8,16 +8,14 @@ use Tests\Unit\BookModelTest;
 use App\Models\Users;
 use App\Models\Books;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class BookCheckinTest extends TestCase
 {
-    use DatabaseTransactions;
+    use RefreshDatabase;
 
     private $_userEmail    = 'testing@sampler.io';
-    private $_userName     = 'Test Sampler';
     private $_userPassword = 'Sampler123';
-    private $_userBDate    = '1985-03-15';
 
     /**
      * Create a super user with the private informations
@@ -26,12 +24,10 @@ class BookCheckinTest extends TestCase
      */
     public function createSuperUser()
     {
-        $User         = Users::firstOrCreate(
-            ['email' => $this->_userEmail],
+        $User = factory(Users::class)->create(
             [
-                'name'          => $this->_userName,
-                'password'      => Users::encryptPassword($this->_userPassword),
-                'date_of_birth' => $this->_userBDate,
+                'email'    => $this->_userEmail,
+                'password' => Users::encryptPassword($this->_userPassword)
             ]
         );
         $this->assertTrue($User->exists(), 'Create user method returned false');
@@ -125,7 +121,6 @@ class BookCheckinTest extends TestCase
         $this->assertFalse($arrCheckoutResponse['error'], 'Checkout returned error = true');
     }
 
-
     public function testBookCheckinProcessOk()
     {
         // create a super user
@@ -135,12 +130,7 @@ class BookCheckinTest extends TestCase
         $accessToken = $this->logInUser($User->email, $this->_userPassword);
 
         // get a book id that can be checked in
-        // same here = model?
-        $Book = BookModelTest::createTestBook([
-            'title'        => 'Harry Potter 100',
-            'isbn'         => '8508136110',
-            'published_at' => '1950-01-01',
-        ]);
+        $Book = factory(Books::class)->create(['isbn' => '8508136110']);
         if($Book->status == Books::BOOK_STATUS_AVAILABLE)
         {
             // checkout book
@@ -161,12 +151,7 @@ class BookCheckinTest extends TestCase
         $accessToken = $this->logInUser($User->email, $this->_userPassword);
 
         // get a book id that can be checked in
-        // same here = model?
-        $Book = BookModelTest::createTestBook([
-            'title'        => 'Harry Potter 100',
-            'isbn'         => '8508136110',
-            'published_at' => '1950-01-01',
-        ]);
+        $Book = factory(Books::class)->create(['isbn' => '8508136110']);
         if($Book->status == Books::BOOK_STATUS_UNAVAILABLE)
         {
             // checkin book

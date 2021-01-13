@@ -4,30 +4,15 @@ use App\Models\Books;
 use App\Models\Users;
 use App\Models\UserActionLogs;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class BookModelTest extends TestCase
 {
-    use DatabaseTransactions;
+    use RefreshDatabase;
 
     // @TODO Sampler: improve this
     private $_userEmail    = 'testing@sampler.io';
-    private $_userName     = 'Test Sampler';
     private $_userPassword = 'Sampler123';
-    private $_userBDate    = '1985-03-15';
-
-    public static function createTestBook(array $Book)
-    {
-        $Book = Books::firstOrCreate(
-            ['isbn' => $Book['isbn'] ?? null],
-            [
-                'title'        => $Book['title'] ?? null,
-                'published_at' => $Book['published_at'] ?? null,
-            ]
-        );
-        BookModelTest::assertTrue($Book->exists(), 'Create test book failed');
-        return $Book;
-    }
 
     public function testValidIsbnSucess()
     {
@@ -45,15 +30,40 @@ class BookModelTest extends TestCase
         $this->assertFalse($retIsbn);
     }
 
+    public function testAddBookEmptyData()
+    {
+        $Books = new Books();
+        $retAddBook = $Books->addBook([]);
+        $this->assertIsArray($retAddBook, 'Return is not array');
+        $this->assertArrayHasKey('error', $retAddBook, 'Array key "error" does not exist');
+        $this->assertArrayHasKey('message', $retAddBook, 'Array key "message" does not exist');
+        $this->assertTrue($retAddBook['error']);
+    }
+
+    public function testAddBookValidationFailed()
+    {
+        $Books = new Books();
+        $retAddBook = $Books->addBook([
+            'title'        => '',
+            'isbn'         => '',
+            'published_at' => '',
+        ]);
+        $this->assertIsArray($retAddBook, 'Return is not array');
+        $this->assertArrayHasKey('error', $retAddBook, 'Array key "error" does not exist');
+        $this->assertArrayHasKey('message', $retAddBook, 'Array key "message" does not exist');
+        $this->assertTrue($retAddBook['error']);
+    }
+
     public function testAddBookSucess()
     {
-        $bookData = [
-            'title'        => 'Harry Potter 100',
-            'isbn'         => '8508136110',
-            'published_at' => '1985-03-15',
-        ];
         $Books      = new Books();
-        $retAddBook = $Books->addBook($bookData);
+        $retAddBook = $Books->addBook(
+            [
+                'title'        => 'Harry Potter 100',
+                'isbn'         => '8508136110',
+                'published_at' => '1985-03-15',
+            ]
+        );
         
         $this->assertIsArray($retAddBook, 'Return is not array');
         $this->assertArrayHasKey('error', $retAddBook, 'Array key "error" does not exist');
@@ -69,20 +79,14 @@ class BookModelTest extends TestCase
     public function testCheckoutBookSucess()
     {
         // create book
-        $Book = BookModelTest::createTestBook([
-            'title'        => 'Harry Potter 101',
-            'isbn'         => '8508136110',
-            'published_at' => '1950-01-01',
-        ]);
+        $Book = factory(Books::class)->create(['isbn' => '8508136110']);
         $this->assertTrue($Book->exists(), 'Error creating book');
 
         // create user
-        $User = Users::firstOrCreate(
-            ['email' => $this->_userEmail],
+        $User = factory(Users::class)->create(
             [
-                'name'          => $this->_userName,
-                'password'      => $this->_userPassword,
-                'date_of_birth' => $this->_userBDate,
+                'email'    => $this->_userEmail,
+                'password' => Users::encryptPassword($this->_userPassword)
             ]
         );
         $this->assertTrue($User->exists(), 'Create test user failed');
@@ -118,20 +122,14 @@ class BookModelTest extends TestCase
     public function testCheckinBookSucess()
     {
         // create book
-        $Book = BookModelTest::createTestBook([
-            'title'        => 'Harry Potter 102',
-            'isbn'         => '8508136110',
-            'published_at' => '1960-01-01',
-        ]);
+        $Book = factory(Books::class)->create(['isbn' => '8508136110']);
         $this->assertTrue($Book->exists(), 'Error creating book');
 
         // create user
-        $User = Users::firstOrCreate(
-            ['email' => $this->_userEmail],
+        $User = factory(Users::class)->create(
             [
-                'name'          => $this->_userName,
-                'password'      => $this->_userPassword,
-                'date_of_birth' => $this->_userBDate,
+                'email'    => $this->_userEmail,
+                'password' => Users::encryptPassword($this->_userPassword)
             ]
         );
         $this->assertTrue($User->exists(), 'Create test user failed');
