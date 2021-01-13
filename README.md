@@ -9,5 +9,5 @@ How to install this project:
 - run "php artisan migrate:fresh --seed"
 - run "php artisan serve"
 - access "http://127.0.0.1:8000" to check if its running
-- you can import the insomnia-routes.json file to insomnia to see the endpoints, or check the documentation here: xxxx
+- you can import the insomnia-routes.json file to insomnia to see the endpoints, or check the documentation here: https://leandroparra.com.br/sampler-api/
 - you can run tests using "vendor/bin/phpunit"
