@@ -2,6 +2,7 @@
 namespace Tests\Unit;
 use App\Models\Books;
 use App\Models\Users;
+use App\Models\UserActionLogs;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
@@ -26,6 +27,22 @@ class BookModelTest extends TestCase
         );
         BookModelTest::assertTrue($Book->exists(), 'Create test book failed');
         return $Book;
+    }
+
+    public function testValidIsbnSucess()
+    {
+        $validIsbn = '8508136110';
+        $Books     = new Books();
+        $retIsbn   = $Books->isValidIsbn($validIsbn);
+        $this->assertTrue($retIsbn);
+    }
+
+    public function testInvalidIsbnSucess()
+    {
+        $validIsbn = '1234567890';
+        $Books     = new Books();
+        $retIsbn   = $Books->isValidIsbn($validIsbn);
+        $this->assertFalse($retIsbn);
     }
 
     public function testAddBookSucess()
@@ -83,6 +100,19 @@ class BookModelTest extends TestCase
         $this->assertArrayHasKey('error', $retCheckout);
         $this->assertArrayHasKey('message', $retCheckout);
         $this->assertFalse($retCheckout['error'], 'Checkout returned false');
+
+        // check book log
+        $UALog = UserActionLogs::where('book_id', $Book->id)
+                                ->orderByDesc('id')
+                                ->limit(1)
+                                ->first();
+        $this->assertTrue($UALog->exists(), 'The book log does not exist');
+        $this->assertEquals($User->id, $UALog->user_id);
+        $this->assertEquals(UserActionLogs::USER_ACT_LOG_ACTION_CHECKOUT, $UALog->action);
+
+        // final book status
+        $Book->refresh();
+        $this->assertEquals(Books::BOOK_STATUS_UNAVAILABLE, $Book->status);
     }
 
     public function testCheckinBookSucess()
@@ -118,5 +148,18 @@ class BookModelTest extends TestCase
         $this->assertArrayHasKey('error', $retCheckin);
         $this->assertArrayHasKey('message', $retCheckin);
         $this->assertFalse($retCheckin['error'], 'Checkin returned false');
+
+        // check book log
+        $UALog = UserActionLogs::where('book_id', $Book->id)
+                                ->orderByDesc('id')
+                                ->limit(1)
+                                ->first();
+        $this->assertTrue($UALog->exists(), 'The book log does not exist');
+        $this->assertEquals($User->id, $UALog->user_id);
+        $this->assertEquals(UserActionLogs::USER_ACT_LOG_ACTION_CHECKIN, $UALog->action);
+
+        // final book status
+        $Book->refresh();
+        $this->assertEquals(Books::BOOK_STATUS_AVAILABLE, $Book->status);
     }
 }

@@ -356,7 +356,7 @@ class Books extends Authenticatable
      * @param boolean $allowEmpty [default false]
      * @return boolean
      */
-    private function isValidIsbn(string $isbn, bool $allowEmpty = false)
+    final public function isValidIsbn(string $isbn, bool $allowEmpty = false)
     {
         if ($allowEmpty && strlen(trim($isbn)) <= 0)
         {
