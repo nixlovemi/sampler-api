@@ -16,7 +16,9 @@ class Users extends Authenticatable implements JWTSubject
         'active'    => true,
         'superuser' => false,
     ];
-    public $timestamps = false; // prevent created/updated_at
+    protected $fillable = ['email', 'name', 'password', 'date_of_birth'];
+    public $timestamps  = false; // prevent created/updated_at
+
     public const NEW_USER_RULES = [
         'email'         => ['required', 'email:rfc,dns', 'max:255', 'filled'],
         'name'          => ['required', 'string', 'min:2', 'max:255', 'filled', "regex:/^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$/"], // regex for names (can a name have numbers on it?)
@@ -54,6 +56,17 @@ class Users extends Authenticatable implements JWTSubject
     {
         $retSU = Users::where('id', $userId)->where('superuser', true);
         return $retSU->exists();
+    }
+
+    /**
+     * Excrypt the password with the chosen crypt method
+     *
+     * @param string $password
+     * @return string
+     */
+    public static function encryptPassword(string $password)
+    {
+        return bcrypt($password);
     }
 
     /**
@@ -115,8 +128,8 @@ class Users extends Authenticatable implements JWTSubject
         $User->password      = $UserData['password'] ?? NULL;
         $User->date_of_birth = $UserData['date_of_birth'] ?? NULL;
 
-        // bcrypt the password
-        $User->password = bcrypt($User->password);
+        // encrypt the password
+        $User->password = Users::encryptPassword($User->password);
 
         // check if email already exists | UK
         $retChkEmail = Users::where('email', $User->email);
@@ -200,10 +213,10 @@ class Users extends Authenticatable implements JWTSubject
             }
         }
 
-        // bcrypt the password
+        // encrypt the password
         if (isset($UserData['password']))
         {
-            $UserData['password'] = bcrypt($UserData['password']);
+            $UserData['password'] = Users::encryptPassword($UserData['password']);
         }
 
         // all good, update
