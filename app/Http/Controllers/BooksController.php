@@ -202,7 +202,8 @@ class BooksController extends Controller
         try
         {
             $Books      = new Books();
-            $retCheckIn = $Books->checkinBook($bookId);
+            $userId     = Users::getLoggedUserId();
+            $retCheckIn = $Books->checkinBook($bookId, $userId);
             return response()->json($retCheckIn, Response::HTTP_OK);
         }
         catch (Exception $e)

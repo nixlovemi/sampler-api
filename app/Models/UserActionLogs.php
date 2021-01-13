@@ -65,6 +65,12 @@ class UserActionLogs extends Model
         ]);
     }
 
+    /**
+     * Return the last log for this book id or null if it doesn't exists
+     *
+     * @param integer $bookId
+     * @return Books|null
+     */
     public function getBookLastLog(int $bookId)
     {
         // get last inserted log

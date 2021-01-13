@@ -100,16 +100,9 @@ class UsersController extends Controller
     {
         try
         {
-            // users can change only their own ID; superuser can bypass this
-            if (!Users::isSuperuser(Users::getLoggedUserId()) && $userId != Users::getLoggedUserId())
-            {
-                $message = lpApiResponse(true, "Can't change other user register.");
-                return response()->json($message, Response::HTTP_FORBIDDEN);
-            }
-
             $userFields = $request->only(['email', 'name', 'password', 'date_of_birth']);
             $Users      = new Users();
-            $retSave    = $Users->updateUser($userId, $userFields);
+            $retSave    = $Users->updateUser($userId, $userFields, Users::getLoggedUserId());
 
             return response()->json($retSave, Response::HTTP_OK);
         }
@@ -155,9 +148,7 @@ class UsersController extends Controller
 
         try {
             $Users   = new Users();
-            $retSave = $Users->updateUser($userId, [
-                'active' => $bActive
-            ]);
+            $retSave = $Users->updateUser($userId, ['active' => $bActive], Users::getLoggedUserId());
             
             // just add the 'word' activated/deactivated when success
             if (!$retSave['error'])

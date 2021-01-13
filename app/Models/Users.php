@@ -158,12 +158,13 @@ class Users extends Authenticatable implements JWTSubject
      *
      * @param integer $userId
      * @param array $UserData [key/value with the name/value of the table fields. Ex: ['name' => 'leandro', 'email' => 'leandro@sampler.io'] ...]
+     * @param integer $loggedUserId
      * @return array lpApiResponse
      */
-    public function updateUser(int $userId, array $UserData)
+    public function updateUser(int $userId, array $UserData, int $loggedUserId)
     {
         // users can change only their own ID; superuser can bypass this
-        if (!Users::isSuperuser(Users::getLoggedUserId()) && $userId != Users::getLoggedUserId())
+        if (!Users::isSuperuser($loggedUserId) && $userId != $loggedUserId)
         {
             return lpApiResponse(true, "Can't change other user register.");
         }

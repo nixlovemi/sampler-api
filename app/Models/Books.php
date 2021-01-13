@@ -285,9 +285,10 @@ class Books extends Authenticatable
      * Check-in a book (return it to the 'library')
      *
      * @param integer $bookId
+     * @param integer $loggedUserId
      * @return array lpApiResponse
      */
-    public function checkinBook (int $bookId)
+    public function checkinBook (int $bookId, int $loggedUserId)
     {
         // get the book by id
         $Book = Books::find($bookId);
@@ -305,7 +306,7 @@ class Books extends Authenticatable
         // check if book is with current user; superuser can bypass this
         $UALogs      = new UserActionLogs();
         $BookLastLog = $UALogs->getBookLastLog($bookId);
-        if(!Users::isSuperuser(Users::getLoggedUserId()) && $BookLastLog->user_id != Users::getLoggedUserId())
+        if(!Users::isSuperuser($loggedUserId) && isset($BookLastLog) && $BookLastLog->user_id != $loggedUserId)
         {
             return lpApiResponse(true, "You cannot check in this book #{$bookId} because you didn't checked it out.");
         }
@@ -329,7 +330,7 @@ class Books extends Authenticatable
         $UALogs = new UserActionLogs();
         $retLog = $UALogs->addLog([
             'book_id'    => $Book->id,
-            'user_id'    => Users::getLoggedUserId(),
+            'user_id'    => $loggedUserId,
             'action'     => UserActionLogs::USER_ACT_LOG_ACTION_CHECKIN,
             'created_at' => date('Y-m-d H:i:s'),
         ]);
